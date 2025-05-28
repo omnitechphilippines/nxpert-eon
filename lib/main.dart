@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Add this
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:month_year_picker/month_year_picker.dart'; // Add this
 import 'router.dart';
 
 void main() async {
@@ -15,6 +17,20 @@ class NxpertEonApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(title: 'NXPERT EON', debugShowCheckedModeBanner: false, routerConfig: router, theme: ThemeData(fontFamily: 'Roboto'));
+    return MaterialApp.router(
+      title: 'NXPERT EON',
+      debugShowCheckedModeBanner: false,
+      routerConfig: router,
+      theme: ThemeData(fontFamily: 'Roboto'),
+      localizationsDelegates: const [ // Add these
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        MonthYearPickerLocalizations.delegate,
+      ],
+      supportedLocales: const [ // Add this
+        Locale('en', ''),
+      ],
+    );
   }
 }

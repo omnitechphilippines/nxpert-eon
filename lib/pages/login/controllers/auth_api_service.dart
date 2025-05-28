@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'auth_api_service.g.dart';
 
 class AuthApiService {
-  static const String baseUrl = "http://192.168.1.120:1880/login";
+  static const String baseUrl = "http://localhost:1880/login";
 
   Future<Map<String, dynamic>> login(String userId, String password) async {
     final http.Client client = http.Client();
@@ -15,7 +15,7 @@ class AuthApiService {
       final http.Response response = await http.post(
         Uri.parse(baseUrl),
         headers: <String, String>{"Content-Type": "application/json"},
-        body: jsonEncode(<String, String>{"userId": userId, "password": password}),
+        body: jsonEncode(<String, String>{"username": userId, "password": password}),
       );
       if (response.statusCode == 200) {
         return response.body!='[]'? jsonDecode(response.body)[0] : <String, dynamic>{};
