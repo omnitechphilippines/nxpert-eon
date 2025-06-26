@@ -67,21 +67,6 @@ void showUpdateProductModal(BuildContext context, int index) {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextField(
-                    controller: productCodeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Product Code',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Product Name',
