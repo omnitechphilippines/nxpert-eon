@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
+import '../../pages/settings/user_master/models/user_model.dart';
 
-void showUpdateUserModal(BuildContext context, int index) {
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController positionController = TextEditingController();
+void showUpdateUserModal(
+  BuildContext context,
+  int index,
+  List<User> users,
+  void Function(int index, User updatedUser) onUpdate,
+) {
+  final user = users[index];
 
-  void clearFields() {
-    firstNameController.clear();
-    lastNameController.clear();
-    emailController.clear();
-    positionController.clear();
-  }
+  final TextEditingController firstNameController = TextEditingController(
+    text: user.userFirstName,
+  );
+  final TextEditingController lastNameController = TextEditingController(
+    text: user.userLastName,
+  );
+  final TextEditingController emailController = TextEditingController(
+    text: user.userEmail,
+  );
+  final TextEditingController positionController = TextEditingController(
+    text: user.userPosition,
+  );
 
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(
@@ -20,25 +29,29 @@ void showUpdateUserModal(BuildContext context, int index) {
     return emailRegex.hasMatch(email);
   }
 
-  void submitForm(
-    String? userFirstName,
-    String? userLastName,
-    String? userEmail,
-    String? userPosition,
-  ) {
-    if (userEmail != null && userEmail.isNotEmpty && !isValidEmail(userEmail)) {
+  void submitForm() {
+
+    //! this should allown null parameters for update
+    final updatedUser = User(
+      userCode: user.userCode, // Assuming userCode is not being updated
+      userStatus: user.userStatus, // Assuming userStatus is not being updated
+      userPassword:
+          user.userPassword, // Assuming userPassword is not being updated
+      userFirstName: firstNameController.text.trim(),
+      userLastName: lastNameController.text.trim(),
+      userEmail: emailController.text.trim(),
+      userPosition: positionController.text.trim(),
+    );
+
+    if (updatedUser.userEmail.isNotEmpty &&
+        !isValidEmail(updatedUser.userEmail)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid email address')),
       );
       return;
     }
 
-    print('Updating User:');
-    print('User Name: ${userFirstName ?? ''} ${userLastName ?? ''}');
-    print('Email: ${userEmail ?? 'N/A'}');
-    print('Position: ${userPosition ?? 'N/A'}');
-
-    clearFields();
+    onUpdate(index, updatedUser);
     Navigator.pop(context);
   }
 
@@ -73,18 +86,12 @@ void showUpdateUserModal(BuildContext context, int index) {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const SizedBox(height: 10),
                   TextField(
                     controller: firstNameController,
                     decoration: const InputDecoration(
                       labelText: 'First Name',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
                   ),
@@ -93,13 +100,8 @@ void showUpdateUserModal(BuildContext context, int index) {
                     controller: lastNameController,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
                   ),
@@ -108,13 +110,8 @@ void showUpdateUserModal(BuildContext context, int index) {
                     controller: emailController,
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
                   ),
@@ -123,20 +120,15 @@ void showUpdateUserModal(BuildContext context, int index) {
                     controller: positionController,
                     decoration: const InputDecoration(
                       labelText: 'Position',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            actions: <Widget>[
+            actions: [
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
@@ -147,30 +139,11 @@ void showUpdateUserModal(BuildContext context, int index) {
                 ),
                 child: const Text(
                   'Cancel',
-                  style: TextStyle(fontSize: 14, color: Colors.white),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  final String? firstName =
-                      firstNameController.text.trim().isEmpty
-                          ? null
-                          : firstNameController.text.trim();
-                  final String? lastName =
-                      lastNameController.text.trim().isEmpty
-                          ? null
-                          : lastNameController.text.trim();
-                  final String? email =
-                      emailController.text.trim().isEmpty
-                          ? null
-                          : emailController.text.trim();
-                  final String? position =
-                      positionController.text.trim().isEmpty
-                          ? null
-                          : positionController.text.trim();
-
-                  submitForm(firstName, lastName, email, position);
-                },
+                onPressed: submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: const RoundedRectangleBorder(
@@ -179,11 +152,7 @@ void showUpdateUserModal(BuildContext context, int index) {
                 ),
                 child: const Text(
                   'Update',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],

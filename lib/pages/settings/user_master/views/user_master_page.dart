@@ -39,6 +39,12 @@ class _UserMasterPageState extends State<UserMasterPage> {
     ),
   ];
 
+  void _updateUser(int index, User updatedUser) {
+    setState(() {
+      _users[index] = updatedUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +113,7 @@ class _UserMasterPageState extends State<UserMasterPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: UserTable(users: _users),
+              child: UserTable(users: _users, onUpdate: _updateUser),
             ),
           ),
           const Footer(),

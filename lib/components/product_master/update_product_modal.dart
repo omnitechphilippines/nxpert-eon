@@ -90,12 +90,22 @@ void showUpdateProductModal(
             actions: <Widget>[
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
                 child: const Text('Cancel', style: TextStyle(color: Colors.white)),
               ),
               ElevatedButton(
                 onPressed: submitForm,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
                 child: const Text('Update', style: TextStyle(color: Colors.white)),
               ),
             ],

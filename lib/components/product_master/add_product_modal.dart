@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../pages/settings/product_master/models/product_model.dart'; // adjust the path if needed
+import '../../pages/settings/product_master/models/product_model.dart'; 
 
 void showAddProductModal(BuildContext context, Function(Product) onAddProduct) {
   final TextEditingController productCodeController = TextEditingController();
