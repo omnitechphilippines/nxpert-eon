@@ -9,6 +9,7 @@ import '../../../../components/product_master/add_product_modal.dart';
 import '../../../../components/product_master/search_product_modal.dart';
 import '../../../../components/product_master/product_table.dart';
 import 'package:quickalert/quickalert.dart';
+import '../models/product_model.dart';
 
 class ProductMasterPage extends StatefulWidget {
   const ProductMasterPage({super.key});
@@ -18,20 +19,46 @@ class ProductMasterPage extends StatefulWidget {
 }
 
 class _ProductMasterPageState extends State<ProductMasterPage> {
-  final List<Map<String, String>> _products = [
-    {
-      'code': 'P001',
-      'name': 'Crank Case',
-      'specification': 'Heavy-duty steel',
-      'internalCode': 'INT-001',
-    },
-    {
-      'code': 'P002',
-      'name': 'Crank Case 2',
-      'specification': 'Rubber grip',
-      'internalCode': 'INT-002',
-    },
+  final List<Product> _products = [
+    Product(
+      productCode: 'P001',
+      productName: 'Crank Case',
+      productSpecification: 'Heavy-duty steel',
+      productInternalCode: 'INT-001',
+    ),
+    Product(
+      productCode: 'P002',
+      productName: 'Crank Case 2',
+      productSpecification: 'Rubber grip',
+      productInternalCode: 'INT-002',
+    ),
   ];
+
+  void _addProduct(Product product) {
+    setState(() {
+      _products.add(product);
+    });
+  }
+
+  void _updateProduct(int index, Product updatedProduct) {
+    setState(() {
+      _products[index] = updatedProduct;
+    });
+  }
+
+  void _deleteProduct(int index) {
+    setState(() {
+      _products.removeAt(index);
+    });
+
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: 'Deleted!',
+      text: 'Product has been successfully deleted.',
+      confirmBtnColor: Colors.green,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +66,21 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(title: 'NXPERT EON'),
       drawer: SideNav(
-        currentRoute:
-            GoRouter.of(
-              context,
-            ).routerDelegate.currentConfiguration.uri.toString(),
+        currentRoute: GoRouter.of(context)
+            .routerDelegate
+            .currentConfiguration
+            .uri
+            .toString(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           const HeaderBanner(subtitle: 'PRODUCT MASTER'),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                //? Search Modal Button
                 ElevatedButton(
                   onPressed: () => showSearchProductModal(context),
                   style: ElevatedButton.styleFrom(
@@ -78,7 +102,7 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () => showAddProductModal(context),
+                  onPressed: () => showAddProductModal(context, _addProduct),
                   style: ElevatedButton.styleFrom(
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
@@ -99,25 +123,13 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
               ],
             ),
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ProductTable(
                 products: _products,
-                onDelete: (index) {
-                  setState(() {
-                    _products.removeAt(index);
-                  });
-
-                  QuickAlert.show(
-                    context: context, 
-                    type: QuickAlertType.success,
-                    title: 'Deleted!',
-                    text: 'Product has been successfully deleted.',
-                    confirmBtnColor: Colors.green,
-                  );
-                },
+                onDelete: _deleteProduct,
+                onUpdate: _updateProduct,
               ),
             ),
           ),

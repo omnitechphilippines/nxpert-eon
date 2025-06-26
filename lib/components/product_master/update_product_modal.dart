@@ -1,37 +1,29 @@
 import 'package:flutter/material.dart';
+import '../../pages/settings/product_master/models/product_model.dart'; // adjust the path if needed
 
-void showUpdateProductModal(BuildContext context, int index) {
-  final TextEditingController productCodeController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController specificationController = TextEditingController();
-  final TextEditingController internalCodeController = TextEditingController();
+void showUpdateProductModal(
+  BuildContext context,
+  Product product,
+  void Function(Product updatedProduct) onUpdate,
+) {
+  final TextEditingController productCodeController =
+      TextEditingController(text: product.productCode);
+  final TextEditingController nameController =
+      TextEditingController(text: product.productName);
+  final TextEditingController specificationController =
+      TextEditingController(text: product.productSpecification);
+  final TextEditingController internalCodeController =
+      TextEditingController(text: product.productInternalCode);
 
-  void clearFields() {
-    productCodeController.clear();
-    nameController.clear();
-    specificationController.clear();
-    internalCodeController.clear();
-  }
+  void submitForm() {
+    final updatedProduct = Product(
+      productCode: productCodeController.text.trim(),
+      productName: nameController.text.trim(),
+      productSpecification: specificationController.text.trim(),
+      productInternalCode: internalCodeController.text.trim(),
+    );
 
-  void submitForm([
-    String? code,
-    String? name,
-    String? specification,
-    String? internalCode,
-  ]) {
-    final String productCode = code ?? '';
-    final String productName = name ?? '';
-    final String productSpecification = specification ?? '';
-    final String productInternalCode = internalCode ?? '';
-
-    clearFields();
-
-    print('Searching Product:');
-    print('Product Code: $productCode');
-    print('Product Name: $productName');
-    print('Specification: $productSpecification');
-    print('Internal Code: $productInternalCode');
-
+    onUpdate(updatedProduct);
     Navigator.pop(context);
   }
 
@@ -46,19 +38,14 @@ void showUpdateProductModal(BuildContext context, int index) {
         child: Material(
           color: Colors.transparent,
           child: AlertDialog(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             titlePadding: EdgeInsets.zero,
             title: Container(
               padding: const EdgeInsets.all(16),
               color: Colors.blue,
               child: const Text(
                 'Update Product',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             content: SizedBox(
@@ -67,47 +54,34 @@ void showUpdateProductModal(BuildContext context, int index) {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextField(
+                    controller: productCodeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Product Code',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Product Name',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: specificationController,
                     decoration: const InputDecoration(
-                      labelText: 'Product Specification',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
+                      labelText: 'Specification',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: internalCodeController,
                     decoration: const InputDecoration(
-                      labelText: 'Internal Product Code',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
+                      labelText: 'Internal Code',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                 ],
@@ -116,42 +90,13 @@ void showUpdateProductModal(BuildContext context, int index) {
             actions: <Widget>[
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Cancel', style: TextStyle(color: Colors.white)),
               ),
               ElevatedButton(
-                onPressed: () {
-                  final String code = productCodeController.text.trim();
-                  final String name = nameController.text.trim();
-                  final String specification =
-                      specificationController.text.trim();
-                  final String internalCode =
-                      internalCodeController.text.trim();
-
-                  submitForm(code, name, specification, internalCode);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                child: const Text(
-                  'Update',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
+                onPressed: submitForm,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                child: const Text('Update', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),

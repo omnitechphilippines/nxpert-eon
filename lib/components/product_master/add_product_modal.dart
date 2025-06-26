@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../pages/settings/product_master/models/product_model.dart'; // adjust the path if needed
 
-void showAddProductModal(BuildContext context) {
+void showAddProductModal(BuildContext context, Function(Product) onAddProduct) {
   final TextEditingController productCodeController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController specificationController = TextEditingController();
@@ -26,20 +27,17 @@ void showAddProductModal(BuildContext context) {
     internalCodeController.clear();
   }
 
-  void submitForm(
-    String code,
-    String name,
-    String specification,
-    String internalCode,
-  ) {
+  void submitForm() {
     if (!areFieldsValid()) return;
 
-    print('Submitting Product:');
-    print('Product Code: $code');
-    print('Product Name: $name');
-    print('Specification: $specification');
-    print('Internal Code: $internalCode');
+    final product = Product(
+      productCode: productCodeController.text.trim(),
+      productName: nameController.text.trim(),
+      productSpecification: specificationController.text.trim(),
+      productInternalCode: internalCodeController.text.trim(),
+    );
 
+    onAddProduct(product); // pass to parent
     clearFields();
     Navigator.pop(context);
   }
@@ -134,14 +132,7 @@ void showAddProductModal(BuildContext context) {
                 child: const Text('Cancel', style: TextStyle(fontSize: 14, color: Colors.white)),
               ),
               ElevatedButton(
-                onPressed: () {
-                  final String code = productCodeController.text.trim();
-                  final String name = nameController.text.trim();
-                  final String specification = specificationController.text.trim();
-                  final String internalCode = internalCodeController.text.trim();
-
-                  submitForm(code, name, specification, internalCode);
-                },
+                onPressed: submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
