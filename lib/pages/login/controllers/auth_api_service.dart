@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'auth_api_service.g.dart';
 
 class AuthApiService {
-  static const String baseUrl = "http://192.168.1.120:1880/login";
+  static const String baseUrl = "http://192.168.1.123:1880/login";
 
   Future<Map<String, dynamic>> login(String userId, String password) async {
     final http.Client client = http.Client();
