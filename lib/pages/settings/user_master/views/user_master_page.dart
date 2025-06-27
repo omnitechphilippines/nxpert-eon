@@ -26,30 +26,29 @@ class _UserMasterPageState extends State<UserMasterPage> {
 
   int _entriesPerPage = 10;
   int _currentPage = 1;
-
-  List<User> get _paginatedUsers {
-    final start = (_currentPage - 1) * _entriesPerPage;
-    final end = (_currentPage * _entriesPerPage).clamp(0, _users.length);
-    return _users.sublist(start, end);
-  }
-
-  int get _totalPages =>
-      (_users.length / _entriesPerPage).ceil().clamp(1, _users.length);
+  int _totalCount = 0;
 
   void _updateUser(int index, User updatedUser) {
-    final globalIndex = ((_currentPage - 1) * _entriesPerPage) + index;
     setState(() {
-      _users[globalIndex] = updatedUser;
+      _users[index] = updatedUser;
     });
   }
 
   Future<void> _loadUsers() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
     try {
-      final fetchedUsers = await _controller.getUsers();
+      final result = await _controller.getUsers(
+        page: _currentPage,
+        limit: _entriesPerPage,
+      );
       setState(() {
-        _users = fetchedUsers;
+        _users = result.users;
+        _totalCount = result.total;
         _isLoading = false;
-        _currentPage = 1;
       });
     } catch (e) {
       setState(() {
@@ -67,12 +66,17 @@ class _UserMasterPageState extends State<UserMasterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final int totalPages =
+        _totalCount == 0 ? 1 : (_totalCount / _entriesPerPage).ceil();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(title: 'NXPERT EON'),
       drawer: SideNav(
         currentRoute:
-            GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString(),
+            GoRouter.of(
+              context,
+            ).routerDelegate.currentConfiguration.uri.toString(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -81,7 +85,10 @@ class _UserMasterPageState extends State<UserMasterPage> {
 
           // Top Controls Row
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -90,18 +97,22 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     const Text("Show "),
                     DropdownButton<int>(
                       value: _entriesPerPage,
-                      items: [5, 10, 25, 50, 100]
-                          .map((count) => DropdownMenuItem<int>(
-                                value: count,
-                                child: Text('$count'),
-                              ))
-                          .toList(),
+                      items:
+                          [5, 10, 25, 50, 100]
+                              .map(
+                                (count) => DropdownMenuItem<int>(
+                                  value: count,
+                                  child: Text('$count'),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
                             _entriesPerPage = value;
                             _currentPage = 1;
                           });
+                          _loadUsers();
                         }
                       },
                     ),
@@ -113,7 +124,9 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     ElevatedButton(
                       onPressed: () => showSearchUserModal(context),
                       style: ElevatedButton.styleFrom(
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(150, 50),
@@ -131,7 +144,9 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     ElevatedButton(
                       onPressed: () => showAddUserModal(context),
                       style: ElevatedButton.styleFrom(
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(150, 50),
@@ -155,18 +170,22 @@ class _UserMasterPageState extends State<UserMasterPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error.isNotEmpty
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _error.isNotEmpty
                       ? Center(child: Text(_error))
-                      : UserTable(users: _paginatedUsers, onUpdate: _updateUser),
+                      : UserTable(users: _users, onUpdate: _updateUser),
             ),
           ),
 
           // Pagination Controls & Footer
           if (!_isLoading && _error.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -174,22 +193,34 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     _users.isEmpty
                         ? 'Showing 0 entries'
                         : 'Showing ${((_currentPage - 1) * _entriesPerPage) + 1} '
-                          'to ${( (_currentPage * _entriesPerPage).clamp(0, _users.length) )} '
-                          'of ${_users.length} entries',
+                            'to ${((_currentPage - 1) * _entriesPerPage) + _users.length} '
+                            'of $_totalCount entries',
                   ),
                   Row(
                     children: [
                       TextButton(
-                        onPressed: _currentPage > 1
-                            ? () => setState(() => _currentPage--)
-                            : null,
+                        onPressed:
+                            _currentPage > 1
+                                ? () {
+                                  setState(() {
+                                    _currentPage--;
+                                  });
+                                  _loadUsers();
+                                }
+                                : null,
                         child: const Text("Previous"),
                       ),
-                      Text('Page $_currentPage of $_totalPages'),
+                      Text('Page $_currentPage of $totalPages'),
                       TextButton(
-                        onPressed: _currentPage < _totalPages
-                            ? () => setState(() => _currentPage++)
-                            : null,
+                        onPressed:
+                            (_currentPage * _entriesPerPage < _totalCount)
+                                ? () {
+                                  setState(() {
+                                    _currentPage++;
+                                  });
+                                  _loadUsers();
+                                }
+                                : null,
                         child: const Text("Next"),
                       ),
                     ],

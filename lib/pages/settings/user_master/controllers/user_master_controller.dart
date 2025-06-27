@@ -1,20 +1,21 @@
-// lib/controllers/user_master_controller.dart
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/user_model.dart';
 import '../../../../utils/global_api_config.dart';
+import '../models/paginated_user_response.dart';
 
 class UserMasterController {
-  Future<List<User>> getUsers() async {
-    final url = Uri.parse('${ApiConfig.baseUrl}userMasterGetUsers'); // Adjust to your endpoint
-
+  Future<PaginatedUserResponse> getUsers({
+    required int page,
+    required int limit,
+  }) async {
+    final url = Uri.parse(
+      '${ApiConfig.baseUrl}userMasterGetUsers?page=$page&limit=$limit',
+    );
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-
-      return data.map((user) => User.fromJson(user)).toList();
+      final jsonData = json.decode(response.body);
+      return PaginatedUserResponse.fromJson(jsonData);
     } else {
       throw Exception('Failed to load users');
     }
