@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
+import '../../pages/settings/user_master/controllers/user_master_controller.dart';
+import '../../pages/settings/user_master/models/user_model.dart';
 
 void showAddUserModal(BuildContext context) {
   final TextEditingController userCodeController = TextEditingController();
@@ -7,6 +10,8 @@ void showAddUserModal(BuildContext context) {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController positionController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  final UserMasterController _controller = UserMasterController();
 
   bool isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
@@ -44,26 +49,6 @@ void showAddUserModal(BuildContext context) {
     positionController.clear();
   }
 
-  void submitForm(
-    String userCode,
-    String userFirstName,
-    String userLastName,
-    String userEmail,
-    String userPassword,
-    String userPosition,
-  ) {
-    if (!areFieldsValid()) return;
-
-    print('Submitting Product:');
-    print('User Code: $userCode');
-    print('User Name: $userFirstName $userLastName');
-    print('Specification: $userEmail');
-    print('Internal Code: $userPosition');
-
-    clearFields();
-    Navigator.pop(context);
-  }
-
   bool isPasswordVisible = false;
 
   showGeneralDialog(
@@ -78,6 +63,48 @@ void showAddUserModal(BuildContext context) {
           color: Colors.transparent,
           child: StatefulBuilder(
             builder: (context, setState) {
+              bool isLoading = false;
+
+              Future<void> submitForm() async {
+                if (!areFieldsValid()) return;
+
+                setState(() => isLoading = true);
+
+                final newUser = User(
+                  userCode: userCodeController.text.trim(),
+                  userFirstName: firstNameController.text.trim(),
+                  userLastName: lastNameController.text.trim(),
+                  userEmail: emailController.text.trim(),
+                  userPassword: passwordController.text.trim(),
+                  userPosition: positionController.text.trim(),
+                  userStatus: 'A',
+                );
+
+                final success = await _controller.insertUser(newUser);
+
+                if (!context.mounted) return;
+
+                setState(() => isLoading = false);
+
+                if (success) {
+                  clearFields();
+                  Navigator.pop(context); // close modal
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.success,
+                    title: 'Success',
+                    text: 'User successfully added!',
+                  );
+                } else {
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.error,
+                    title: 'Error',
+                    text: 'Failed to add user. Please try again.',
+                  );
+                }
+              }
+
               return AlertDialog(
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -94,178 +121,161 @@ void showAddUserModal(BuildContext context) {
                     ),
                   ),
                 ),
-                content: SizedBox(
-                  width: 500,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      TextField(
-                        controller: userCodeController,
-                        decoration: const InputDecoration(
-                          labelText: 'User Code',
-                          labelStyle: TextStyle(color: Colors.blueGrey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Colors.blue),
+                content:
+                    isLoading
+                        ? const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : SizedBox(
+                          width: 500,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              TextField(
+                                controller: userCodeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'User Code',
+                                  labelStyle: TextStyle(color: Colors.blueGrey),
+                                  border: OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: firstNameController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'First Name',
+                                        labelStyle: TextStyle(
+                                          color: Colors.blueGrey,
+                                        ),
+                                        border: OutlineInputBorder(),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: lastNameController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Last Name',
+                                        labelStyle: TextStyle(
+                                          color: Colors.blueGrey,
+                                        ),
+                                        border: OutlineInputBorder(),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: emailController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                  labelStyle: TextStyle(color: Colors.blueGrey),
+                                  border: OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: passwordController,
+                                obscureText: !isPasswordVisible,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  labelStyle: const TextStyle(
+                                    color: Colors.blueGrey,
+                                  ),
+                                  border: const OutlineInputBorder(),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      isPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        isPasswordVisible = !isPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: positionController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Position',
+                                  labelStyle: TextStyle(color: Colors.blueGrey),
+                                  border: OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: firstNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'First Name',
-                                labelStyle: TextStyle(color: Colors.blueGrey),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.zero,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.zero,
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
+                actions:
+                    isLoading
+                        ? []
+                        : <Widget>[
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              controller: lastNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Last Name',
-                                labelStyle: TextStyle(color: Colors.blueGrey),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.zero,
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.zero,
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
+                          ElevatedButton(
+                            onPressed: submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Colors.white,
                               ),
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          labelStyle: TextStyle(color: Colors.blueGrey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: passwordController,
-                        obscureText: !isPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: const TextStyle(color: Colors.blueGrey),
-                          border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isPasswordVisible = !isPasswordVisible;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: positionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Position',
-                          labelStyle: TextStyle(color: Colors.blueGrey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(fontSize: 14, color: Colors.white),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      final String userCode = userCodeController.text.trim();
-                      final String userFirstName =
-                          firstNameController.text.trim();
-                      final String userLastName =
-                          lastNameController.text.trim();
-                      final String userEmail = emailController.text.trim();
-                      final String userPassword =
-                          passwordController.text.trim();
-                      final String userPosition =
-                          positionController.text.trim();
-
-                      submitForm(
-                        userCode,
-                        userFirstName,
-                        userLastName,
-                        userEmail,
-                        userPassword,
-                        userPosition,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
               );
             },
           ),
