@@ -103,8 +103,27 @@ void showSearchPalletModal(
                   ),
                 ),
                 actions: <Widget>[
+                  // Close button
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[700],
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+
+                  // Reset Search button
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      onSearch(); // Call with no filters (same as getPallets)
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       shape: const RoundedRectangleBorder(
@@ -112,10 +131,15 @@ void showSearchPalletModal(
                       ),
                     ),
                     child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.white),
+                      'Reset',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+
+                  // Actual Search button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
