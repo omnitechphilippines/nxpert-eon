@@ -86,4 +86,46 @@ class UserMasterController {
       return false;
     }
   }
+
+  Future<bool> updateUser({
+    required String userCode,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? position,
+    String? status,
+    String? password,
+  }) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}userMasterUpdateUser');
+
+    // Construct only non-null fields
+    final Map<String, dynamic> updateData = {
+      'Umt_Usercode': userCode,
+      if (firstName != null) 'Umt_userfname': firstName,
+      if (lastName != null) 'Umt_userlname': lastName,
+      if (email != null) 'Umt_Email': email,
+      if (position != null) 'Umt_Position': position,
+      if (status != null) 'Umt_status': status,
+      if (password != null) 'Umt_password': password,
+    };
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updateData),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception(
+          'Failed to update user. Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Update User Error: $e');
+      return false;
+    }
+  }
 }

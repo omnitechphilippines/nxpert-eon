@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
+import '../../pages/settings/user_master/controllers/user_master_controller.dart';
 import '../../pages/settings/user_master/models/user_model.dart';
 
 void showUpdateUserModal(
@@ -8,51 +10,81 @@ void showUpdateUserModal(
   void Function(int index, User updatedUser) onUpdate,
 ) {
   final user = users[index];
+  final controller = UserMasterController();
 
-  final TextEditingController firstNameController = TextEditingController(
-    text: user.userFirstName,
-  );
-  final TextEditingController lastNameController = TextEditingController(
-    text: user.userLastName,
-  );
-  final TextEditingController emailController = TextEditingController(
-    text: user.userEmail,
-  );
-  final TextEditingController positionController = TextEditingController(
-    text: user.userPosition,
-  );
+  final TextEditingController firstNameController = TextEditingController(text: user.userFirstName);
+  final TextEditingController lastNameController = TextEditingController(text: user.userLastName);
+  final TextEditingController emailController = TextEditingController(text: user.userEmail);
+  final TextEditingController positionController = TextEditingController(text: user.userPosition);
 
   bool isValidEmail(String email) {
-    final RegExp emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
+    final RegExp emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailRegex.hasMatch(email);
   }
 
-  void submitForm() {
+  Future<void> submitForm() async {
+    final newFirstName = firstNameController.text.trim();
+    final newLastName = lastNameController.text.trim();
+    final newEmail = emailController.text.trim();
+    final newPosition = positionController.text.trim();
 
-    //! this should allown null parameters for update
-    final updatedUser = User(
-      userCode: user.userCode, // Assuming userCode is not being updated
-      userStatus: user.userStatus, // Assuming userStatus is not being updated
-      userPassword:
-          user.userPassword, // Assuming userPassword is not being updated
-      userFirstName: firstNameController.text.trim(),
-      userLastName: lastNameController.text.trim(),
-      userEmail: emailController.text.trim(),
-      userPosition: positionController.text.trim(),
-    );
-
-    if (updatedUser.userEmail.isNotEmpty &&
-        !isValidEmail(updatedUser.userEmail)) {
+    if (newEmail.isNotEmpty &&
+        newEmail != user.userEmail &&
+        !isValidEmail(newEmail)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid email address')),
       );
       return;
     }
 
-    onUpdate(index, updatedUser);
-    Navigator.pop(context);
+    // Build a new user object with only changed fields
+    final updatedUser = User(
+      userCode: user.userCode,
+      userFirstName: newFirstName != user.userFirstName ? newFirstName : user.userFirstName,
+      userLastName: newLastName != user.userLastName ? newLastName : user.userLastName,
+      userEmail: newEmail != user.userEmail ? newEmail : user.userEmail,
+      userPosition: newPosition != user.userPosition ? newPosition : user.userPosition,
+      userStatus: user.userStatus,
+      userPassword: user.userPassword,
+    );
+
+    // Optional loading dialog
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Please wait',
+      text: 'Updating user...',
+      barrierDismissible: false,
+    );
+
+    final success = await controller.updateUser(
+      userCode: updatedUser.userCode,
+      firstName: newFirstName != user.userFirstName ? newFirstName : null,
+      lastName: newLastName != user.userLastName ? newLastName : null,
+      email: newEmail != user.userEmail ? newEmail : null,
+      position: newPosition != user.userPosition ? newPosition : null,
+    );
+
+    if (!context.mounted) return;
+    Navigator.pop(context); // close loading
+
+    if (success) {
+      Navigator.pop(context); // close modal
+      onUpdate(index, updatedUser);
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: 'Success',
+        text: 'User successfully updated!',
+      );
+    } else {
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: 'Failed to update user. Please try again.',
+      );
+    }
   }
 
   showGeneralDialog(
@@ -66,19 +98,14 @@ void showUpdateUserModal(
         child: Material(
           color: Colors.transparent,
           child: AlertDialog(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             titlePadding: EdgeInsets.zero,
             title: Container(
               padding: const EdgeInsets.all(16),
               color: Colors.blue,
               child: const Text(
                 'Update User',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             content: SizedBox(
@@ -90,9 +117,7 @@ void showUpdateUserModal(
                     controller: firstNameController,
                     decoration: const InputDecoration(
                       labelText: 'First Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -100,9 +125,7 @@ void showUpdateUserModal(
                     controller: lastNameController,
                     decoration: const InputDecoration(
                       labelText: 'Last Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -110,9 +133,7 @@ void showUpdateUserModal(
                     controller: emailController,
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -120,9 +141,7 @@ void showUpdateUserModal(
                     controller: positionController,
                     decoration: const InputDecoration(
                       labelText: 'Position',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                 ],
@@ -133,27 +152,17 @@ void showUpdateUserModal(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                 ),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: const Text('Cancel', style: TextStyle(color: Colors.white)),
               ),
               ElevatedButton(
                 onPressed: submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                 ),
-                child: const Text(
-                  'Update',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: const Text('Update', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
