@@ -16,4 +16,16 @@ class User {
     required this.userStatus,
     required this.userPassword,
   });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      userCode: json['Umt_Usercode'] ?? '',
+      userFirstName: json['Umt_userfname'] ?? '',
+      userLastName: json['Umt_userlname'] ?? '',
+      userPosition: json['Umt_Position'] ?? '',
+      userEmail: json['Umt_Email'] ?? '',
+      userStatus: json['Umt_status'] ?? '',
+      userPassword: '', 
+    );
+  }
 }
