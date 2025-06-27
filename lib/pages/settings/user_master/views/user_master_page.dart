@@ -28,6 +28,7 @@ class _UserMasterPageState extends State<UserMasterPage> {
   int _currentPage = 1;
   int _totalCount = 0;
 
+
   void _updateUser(int index, User updatedUser) {
     setState(() {
       _users[index] = updatedUser;
@@ -92,6 +93,7 @@ class _UserMasterPageState extends State<UserMasterPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Entry limit dropdown
                 Row(
                   children: [
                     const Text("Show "),
@@ -119,10 +121,46 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     const Text(" entries"),
                   ],
                 ),
+
+                // Buttons: Search + Add
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: () => showSearchUserModal(context),
+                      onPressed: () {
+                        showSearchUserModal(context, ({
+                          userCode,
+                          userFirstName,
+                          userLastName,
+                          userEmail,
+                          userPosition,
+                        }) {
+                          setState(() => _isLoading = true);
+                          _controller
+                              .searchUser(
+                                page: 1,
+                                limit: _entriesPerPage,
+                                userCode: userCode,
+                                firstName: userFirstName,
+                                lastName: userLastName,
+                                email: userEmail,
+                                position: userPosition,
+                              )
+                              .then((result) {
+                                setState(() {
+                                  _users = result.users;
+                                  _totalCount = result.total;
+                                  _currentPage = 1;
+                                  _isLoading = false;
+                                });
+                              })
+                              .catchError((e) {
+                                setState(() {
+                                  _error = 'Search failed: $e';
+                                  _isLoading = false;
+                                });
+                              });
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
@@ -228,6 +266,7 @@ class _UserMasterPageState extends State<UserMasterPage> {
                 ],
               ),
             ),
+
           const Footer(),
         ],
       ),

@@ -6,14 +6,19 @@ class UserTable extends StatelessWidget {
   final List<User> users;
   final void Function(int index, User updatedUser) onUpdate;
 
-  const UserTable({
-    super.key,
-    required this.users,
-    required this.onUpdate,
-  });
+  const UserTable({super.key, required this.users, required this.onUpdate});
 
   @override
   Widget build(BuildContext context) {
+    if (users.isEmpty) {
+      return const Center(
+        child: Text(
+          'No entry found',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      );
+    }
+
     return SizedBox(
       width: double.infinity,
       child: SingleChildScrollView(
@@ -29,13 +34,39 @@ class UserTable extends StatelessWidget {
               columnSpacing: 20,
               border: TableBorder.all(color: Colors.grey.shade300),
               columns: const [
-                DataColumn(label: Text('User Code', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('First Name', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('Last Name', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('Position', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('Email', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('Status', style: TextStyle(color: Colors.white))),
-                DataColumn(label: Text('Actions', style: TextStyle(color: Colors.white))),
+                DataColumn(
+                  label: Text(
+                    'User Code',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'First Name',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Last Name',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Position',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                DataColumn(
+                  label: Text('Email', style: TextStyle(color: Colors.white)),
+                ),
+                DataColumn(
+                  label: Text('Status', style: TextStyle(color: Colors.white)),
+                ),
+                DataColumn(
+                  label: Text('Actions', style: TextStyle(color: Colors.white)),
+                ),
               ],
               rows: List.generate(users.length, (index) {
                 final user = users[index];
@@ -52,21 +83,32 @@ class UserTable extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton.icon(
-                            onPressed: () => showUpdateUserModal(
-                              context,
-                              index,
-                              users,
-                              onUpdate,
-                            ),
+                            onPressed:
+                                () => showUpdateUserModal(
+                                  context,
+                                  index,
+                                  users,
+                                  onUpdate,
+                                ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.zero,
                               ),
                             ),
-                            icon: const Icon(Icons.edit, size: 18, color: Colors.white),
-                            label: const Text('Update', style: TextStyle(color: Colors.white)),
+                            icon: const Icon(
+                              Icons.edit,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Update',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
