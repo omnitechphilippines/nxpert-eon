@@ -28,7 +28,6 @@ class _UserMasterPageState extends State<UserMasterPage> {
   int _currentPage = 1;
   int _totalCount = 0;
 
-
   void _updateUser(int index, User updatedUser) {
     setState(() {
       _users[index] = updatedUser;
@@ -180,7 +179,7 @@ class _UserMasterPageState extends State<UserMasterPage> {
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () => showAddUserModal(context),
+                      onPressed: () => showAddUserModal(context, _loadUsers),
                       style: ElevatedButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,

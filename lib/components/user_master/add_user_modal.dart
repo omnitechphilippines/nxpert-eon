@@ -3,7 +3,7 @@ import 'package:quickalert/quickalert.dart';
 import '../../pages/settings/user_master/controllers/user_master_controller.dart';
 import '../../pages/settings/user_master/models/user_model.dart';
 
-void showAddUserModal(BuildContext context) {
+void showAddUserModal(BuildContext context, VoidCallback onUserAdded) {
   final TextEditingController userCodeController = TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
@@ -88,7 +88,8 @@ void showAddUserModal(BuildContext context) {
 
                 if (success) {
                   clearFields();
-                  Navigator.pop(context); // close modal
+                  Navigator.pop(context);
+                  onUserAdded(); 
                   await QuickAlert.show(
                     context: context,
                     type: QuickAlertType.success,
