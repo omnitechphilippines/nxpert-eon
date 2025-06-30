@@ -221,7 +221,14 @@ class _PalletMasterPageState extends State<PalletMasterPage> {
                       ? const Center(child: CircularProgressIndicator())
                       : _error.isNotEmpty
                       ? Center(child: Text(_error))
-                      : PalletTable(pallets: _pallets),
+                      : PalletTable(
+                        pallets: _pallets,
+                        onUpdate: (index, updatedPallet) {
+                          setState(() {
+                            _pallets[index] = updatedPallet;
+                          });
+                        },
+                      ),
             ),
           ),
 

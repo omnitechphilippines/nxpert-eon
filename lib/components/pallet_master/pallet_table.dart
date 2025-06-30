@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../pages/settings/pallet_master/models/pallet_model.dart';
 // Import modal if you have update functionality:
-// import 'update_pallet_modal.dart';
+import '../pallet_master/update_pallet_modal.dart';
 
 class PalletTable extends StatelessWidget {
   final List<Pallet> pallets;
@@ -80,8 +80,12 @@ class PalletTable extends StatelessWidget {
                             onPressed:
                                 onUpdate != null
                                     ? () {
-                                      // Example:
-                                      // showUpdatePalletModal(context, index, pallets, onUpdate!);
+                                      showUpdatePalletModal(
+                                        context,
+                                        pallet,
+                                        (updatedPallet) =>
+                                            onUpdate!(index, updatedPallet),
+                                      );
                                     }
                                     : null,
                             style: ElevatedButton.styleFrom(

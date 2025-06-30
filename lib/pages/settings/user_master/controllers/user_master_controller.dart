@@ -110,7 +110,7 @@ class UserMasterController {
     };
 
     try {
-      final response = await http.patch(
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(updateData),

@@ -13,7 +13,7 @@ class UserTable extends StatelessWidget {
     if (users.isEmpty) {
       return const Center(
         child: Text(
-          'No entry found',
+          'No user found',
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );

@@ -1,68 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
-import '../../pages/settings/user_master/controllers/user_master_controller.dart';
-import '../../pages/settings/user_master/models/user_model.dart';
+import '../../pages/settings/pallet_master/models/pallet_model.dart';
+import '../../pages/settings/pallet_master/controllers/pallet_master_controller.dart';
 
-void showUpdateUserModal(
+void showUpdatePalletModal(
   BuildContext context,
-  int index,
-  List<User> users,
-  void Function(int index, User updatedUser) onUpdate,
+  Pallet pallet,
+  void Function(Pallet updatedPallet) onUpdate,
 ) {
-  final user = users[index];
-  final controller = UserMasterController();
+  final controller = PalletMasterController();
 
-  final TextEditingController firstNameController = TextEditingController(text: user.userFirstName);
-  final TextEditingController lastNameController = TextEditingController(text: user.userLastName);
-  final TextEditingController emailController = TextEditingController(text: user.userEmail);
-  final TextEditingController positionController = TextEditingController(text: user.userPosition);
+  final TextEditingController descController = TextEditingController(text: pallet.palletDescription);
+  final TextEditingController colorController = TextEditingController(text: pallet.palletColor);
 
-  bool isValidEmail(String email) {
-    final RegExp emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    return emailRegex.hasMatch(email);
-  }
+  String? selectedCategory = pallet.palletCategory;
+  String? selectedStatus = pallet.palletStatus;
 
   Future<void> submitForm() async {
-    final newFirstName = firstNameController.text.trim();
-    final newLastName = lastNameController.text.trim();
-    final newEmail = emailController.text.trim();
-    final newPosition = positionController.text.trim();
+    final newDesc = descController.text.trim();
+    final newColor = colorController.text.trim();
 
-    if (newEmail.isNotEmpty &&
-        newEmail != user.userEmail &&
-        !isValidEmail(newEmail)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email address')),
-      );
-      return;
-    }
-
-    // Build a new user object with only changed fields
-    final updatedUser = User(
-      userCode: user.userCode,
-      userFirstName: newFirstName != user.userFirstName ? newFirstName : user.userFirstName,
-      userLastName: newLastName != user.userLastName ? newLastName : user.userLastName,
-      userEmail: newEmail != user.userEmail ? newEmail : user.userEmail,
-      userPosition: newPosition != user.userPosition ? newPosition : user.userPosition,
-      userStatus: user.userStatus,
-      userPassword: user.userPassword,
-    );
-
-    // Optional loading dialog
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
       title: 'Please wait',
-      text: 'Updating user...',
+      text: 'Updating pallet...',
       barrierDismissible: false,
     );
 
-    final success = await controller.updateUser(
-      userCode: updatedUser.userCode,
-      firstName: newFirstName != user.userFirstName ? newFirstName : null,
-      lastName: newLastName != user.userLastName ? newLastName : null,
-      email: newEmail != user.userEmail ? newEmail : null,
-      position: newPosition != user.userPosition ? newPosition : null,
+    final success = await controller.updatePallet(
+      palletCode: pallet.palletCode!,
+      palletDescription: newDesc != pallet.palletDescription ? newDesc : null,
+      palletColor: newColor != pallet.palletColor ? newColor : null,
+      palletCategory: selectedCategory != pallet.palletCategory ? selectedCategory : null,
+      palletStatus: selectedStatus != pallet.palletStatus ? selectedStatus : null,
     );
 
     if (!context.mounted) return;
@@ -70,19 +41,25 @@ void showUpdateUserModal(
 
     if (success) {
       Navigator.pop(context); // close modal
-      onUpdate(index, updatedUser);
+      onUpdate(Pallet(
+        palletCode: pallet.palletCode,
+        palletDescription: newDesc,
+        palletColor: newColor,
+        palletCategory: selectedCategory,
+        palletStatus: selectedStatus,
+      ));
       await QuickAlert.show(
         context: context,
         type: QuickAlertType.success,
         title: 'Success',
-        text: 'User successfully updated!',
+        text: 'Pallet successfully updated!',
       );
     } else {
       await QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
         title: 'Error',
-        text: 'Failed to update user. Please try again.',
+        text: 'Failed to update pallet. Please try again.',
       );
     }
   }
@@ -90,7 +67,7 @@ void showUpdateUserModal(
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: "Update User",
+    barrierLabel: "Update Pallet",
     barrierColor: Colors.black.withOpacity(0.3),
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (_, __, ___) {
@@ -104,7 +81,7 @@ void showUpdateUserModal(
               padding: const EdgeInsets.all(16),
               color: Colors.blue,
               child: const Text(
-                'Update User',
+                'Update Pallet',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
@@ -114,33 +91,48 @@ void showUpdateUserModal(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextField(
-                    controller: firstNameController,
+                    controller: descController,
                     decoration: const InputDecoration(
-                      labelText: 'First Name',
+                      labelText: 'Description',
                       border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
-                    controller: lastNameController,
+                    controller: colorController,
                     decoration: const InputDecoration(
-                      labelText: 'Last Name',
+                      labelText: 'Color',
                       border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: emailController,
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    items: const [
+                      DropdownMenuItem(value: 'R', child: Text('R')),
+                      DropdownMenuItem(value: 'K', child: Text('K')),
+                    ],
+                    onChanged: (value) {
+                      selectedCategory = value;
+                    },
                     decoration: const InputDecoration(
-                      labelText: 'Email',
+                      labelText: 'Category',
                       border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: positionController,
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    items: const [
+                      DropdownMenuItem(value: 'A', child: Text('A')),
+                      DropdownMenuItem(value: 'F', child: Text('F')),
+                      DropdownMenuItem(value: 'N', child: Text('N')),
+                    ],
+                    onChanged: (value) {
+                      selectedStatus = value;
+                    },
                     decoration: const InputDecoration(
-                      labelText: 'Position',
+                      labelText: 'Status',
                       border: OutlineInputBorder(borderRadius: BorderRadius.zero),
                     ),
                   ),
