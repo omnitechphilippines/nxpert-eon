@@ -101,6 +101,7 @@ class LocatorMasterController {
     String? locatorArea,
     String? locatorOccupancyStatus,
     String? locatorStatus,
+    String? locatorWarehouseCode,
     String? userLogin,
     String? luDatetime,
   }) async {
@@ -116,8 +117,11 @@ class LocatorMasterController {
       if (locatorStatus != null) 'Lmt_status': locatorStatus,
       if (userLogin != null) 'User_login': userLogin,
       if (luDatetime != null) 'ludatetime': luDatetime,
+      if (locatorWarehouseCode != null)
+        'Lmt_WarehouseCode': locatorWarehouseCode,
     };
 
+    print(updateData);
     try {
       final response = await http.post(
         url,

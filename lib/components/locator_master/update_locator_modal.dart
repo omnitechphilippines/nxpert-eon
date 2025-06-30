@@ -10,87 +10,14 @@ void showUpdateLocatorModal(
 ) {
   final controller = LocatorMasterController();
 
-  final TextEditingController descController = TextEditingController(
-    text: locator.locatorDesc,
-  );
-  final TextEditingController typeController = TextEditingController(
-    text: locator.locatorType,
-  );
-  final TextEditingController areaController = TextEditingController(
-    text: locator.locatorArea,
-  );
-  final TextEditingController userLoginController = TextEditingController(
-    text: locator.userLogin,
-  );
-  final TextEditingController luDatetimeController = TextEditingController(
-    text: locator.ludatetime,
-  );
+  final descController = TextEditingController(text: locator.locatorDesc ?? '');
 
+  String? selectedLocatorType = locator.locatorType;
+  String? selectedArea = locator.locatorArea;
   String? selectedOccupancyStatus = locator.locatorOccupancyStatus;
   String? selectedStatus = locator.locatorStatus;
 
-  Future<void> submitForm() async {
-    final newDesc = descController.text.trim();
-    final newType = typeController.text.trim();
-    final newArea = areaController.text.trim();
-    final newUserLogin = userLoginController.text.trim();
-    final newLuDatetime = luDatetimeController.text.trim();
-
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.loading,
-      title: 'Please wait',
-      text: 'Updating locator...',
-      barrierDismissible: false,
-    );
-
-    final success = await controller.updateLocator(
-      locatorCode: locator.locatorCode ?? '', 
-      locatorDesc: newDesc != locator.locatorDesc ? newDesc : null,
-      locatorType: newType != locator.locatorType ? newType : null,
-      locatorArea: newArea != locator.locatorArea ? newArea : null,
-      locatorOccupancyStatus:
-          selectedOccupancyStatus != locator.locatorOccupancyStatus
-              ? selectedOccupancyStatus
-              : null,
-      locatorStatus:
-          selectedStatus != locator.locatorStatus ? selectedStatus : null,
-      userLogin: newUserLogin != locator.userLogin ? newUserLogin : null,
-      luDatetime: newLuDatetime != locator.ludatetime ? newLuDatetime : null,
-    );
-
-    if (!context.mounted) return;
-    Navigator.pop(context); // close loading
-
-    if (success) {
-      Navigator.pop(context); // close modal
-      onUpdate(
-        Locator(
-          locatorCode: locator.locatorCode,
-          locatorDesc: newDesc,
-          locatorType: newType,
-          locatorArea: newArea,
-          locatorOccupancyStatus: selectedOccupancyStatus,
-          locatorStatus: selectedStatus,
-          userLogin: newUserLogin,
-          ludatetime: newLuDatetime,
-        ),
-      );
-      await QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        title: 'Success',
-        text: 'Locator successfully updated!',
-      );
-    } else {
-      await QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Error',
-        text: 'Failed to update locator. Please try again.',
-      );
-    }
-  }
+  bool isLoading = false;
 
   showGeneralDialog(
     context: context,
@@ -102,145 +29,245 @@ void showUpdateLocatorModal(
       return Center(
         child: Material(
           color: Colors.transparent,
-          child: AlertDialog(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-            titlePadding: EdgeInsets.zero,
-            title: Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.blue,
-              child: const Text(
-                'Update Locator',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              Future<void> submitForm() async {
+                setState(() => isLoading = true);
+
+                final updated = Locator(
+                  locatorCode: locator.locatorCode,
+                  locatorDesc: descController.text.trim(),
+                  locatorType: selectedLocatorType,
+                  locatorArea: selectedArea,
+                  locatorOccupancyStatus: selectedOccupancyStatus,
+                  locatorStatus: selectedStatus,
+                  userLogin: locator.userLogin,
+                  ludatetime: locator.ludatetime,
+                );
+
+                final success = await controller.updateLocator(
+                  locatorCode: locator.locatorCode ?? '',
+                  locatorDesc:
+                      updated.locatorDesc != locator.locatorDesc
+                          ? updated.locatorDesc
+                          : null,
+                  locatorType:
+                      updated.locatorType != locator.locatorType
+                          ? updated.locatorType
+                          : null,
+                  locatorArea:
+                      updated.locatorArea != locator.locatorArea
+                          ? updated.locatorArea
+                          : null,
+                  locatorOccupancyStatus:
+                      updated.locatorOccupancyStatus !=
+                              locator.locatorOccupancyStatus
+                          ? updated.locatorOccupancyStatus
+                          : null,
+                  locatorStatus:
+                      updated.locatorStatus != locator.locatorStatus
+                          ? updated.locatorStatus
+                          : null,
+                  userLogin: null,
+                  luDatetime: null,
+                );
+
+                if (!context.mounted) return;
+
+                // Safely close the dialog
+                Navigator.of(context, rootNavigator: true).pop();
+
+                if (success) {
+                  onUpdate(updated);
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.success,
+                    title: 'Success',
+                    text: 'Locator successfully updated!',
+                  );
+                } else {
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.error,
+                    title: 'Error',
+                    text: 'Failed to update locator. Please try again.',
+                  );
+                }
+              }
+
+              return AlertDialog(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
                 ),
-              ),
-            ),
-            content: SizedBox(
-              width: 500,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: descController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                titlePadding: EdgeInsets.zero,
+                title: Container(
+                  padding: const EdgeInsets.all(16),
+                  color: Colors.blue,
+                  child: const Text(
+                    'Update Locator',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: typeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Locator Type',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: areaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Locator Area',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    value: selectedOccupancyStatus,
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Occupied',
-                        child: Text('Occupied'),
-                      ),
-                      DropdownMenuItem(value: 'Vacant', child: Text('Vacant')),
-                    ],
-                    onChanged: (value) {
-                      selectedOccupancyStatus = value;
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Occupancy Status',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    value: selectedStatus,
-                    items: const [
-                      DropdownMenuItem(value: 'A', child: Text('A')),
-                      DropdownMenuItem(value: 'F', child: Text('F')),
-                      DropdownMenuItem(value: 'N', child: Text('N')),
-                    ],
-                    onChanged: (value) {
-                      selectedStatus = value;
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Status',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: userLoginController,
-                    decoration: const InputDecoration(
-                      labelText: 'User Login',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: luDatetimeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Updated',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
                   ),
                 ),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                child: const Text(
-                  'Update',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
+                content:
+                    isLoading
+                        ? const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : SizedBox(
+                          width: 500,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: descController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Description',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedLocatorType,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'S',
+                                    child: Text('S'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'C',
+                                    child: Text('C'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'ADC',
+                                    child: Text('ADC'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) => setState(
+                                      () => selectedLocatorType = value,
+                                    ),
+                                decoration: const InputDecoration(
+                                  labelText: 'Locator Type',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedArea,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'IN',
+                                    child: Text('IN'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'OUT',
+                                    child: Text('OUT'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) =>
+                                        setState(() => selectedArea = value),
+                                decoration: const InputDecoration(
+                                  labelText: 'Locator Area',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedOccupancyStatus,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'E',
+                                    child: Text('E'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'O',
+                                    child: Text('O'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) => setState(
+                                      () => selectedOccupancyStatus = value,
+                                    ),
+                                decoration: const InputDecoration(
+                                  labelText: 'Occupancy',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedStatus,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'A',
+                                    child: Text('A'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'F',
+                                    child: Text('F'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) =>
+                                        setState(() => selectedStatus = value),
+                                decoration: const InputDecoration(
+                                  labelText: 'Status',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                actions:
+                    isLoading
+                        ? []
+                        : [
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+
+                          ElevatedButton(
+                            onPressed: submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Update',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+              );
+            },
           ),
         ),
       );
