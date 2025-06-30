@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../pages/settings/pallet_master/models/pallet_model.dart';
-// Import modal if you have update functionality:
 import '../pallet_master/update_pallet_modal.dart';
 
 class PalletTable extends StatelessWidget {
