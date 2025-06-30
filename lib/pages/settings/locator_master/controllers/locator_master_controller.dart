@@ -41,7 +41,8 @@ class LocatorMasterController {
       if (locatorDesc != null) 'locatorDesc': locatorDesc,
       if (locatorType != null) 'locatorType': locatorType,
       if (locatorArea != null) 'locatorArea': locatorArea,
-      if (locatorOccupancyStatus != null) 'locatorOccupancyStatus': locatorOccupancyStatus,
+      if (locatorOccupancyStatus != null)
+        'locatorOccupancyStatus': locatorOccupancyStatus,
       if (locatorStatus != null) 'locatorStatus': locatorStatus,
       if (userLogin != null) 'userLogin': userLogin,
     };
@@ -62,7 +63,7 @@ class LocatorMasterController {
 
   Future<bool> insertLocator(Locator locator) async {
     final url = Uri.parse('${ApiConfig.baseUrl}locatorMasterAddLocator');
-
+    print(url);
     try {
       final response = await http.post(
         url,
@@ -74,6 +75,7 @@ class LocatorMasterController {
           'Lmt_LocatorArea': locator.locatorArea,
           'Lmt_OccupancyStatus': locator.locatorOccupancyStatus,
           'Lmt_status': locator.locatorStatus,
+          'Lmt_WarehouseCode': locator.locatorWarehouseCode,
           'User_login': locator.userLogin,
           'ludatetime': locator.ludatetime,
         }),
@@ -109,7 +111,8 @@ class LocatorMasterController {
       if (locatorDesc != null) 'Lmt_Locatordesc': locatorDesc,
       if (locatorType != null) 'Lmt_LocatorType': locatorType,
       if (locatorArea != null) 'Lmt_LocatorArea': locatorArea,
-      if (locatorOccupancyStatus != null) 'Lmt_OccupancyStatus': locatorOccupancyStatus,
+      if (locatorOccupancyStatus != null)
+        'Lmt_OccupancyStatus': locatorOccupancyStatus,
       if (locatorStatus != null) 'Lmt_status': locatorStatus,
       if (userLogin != null) 'User_login': userLogin,
       if (luDatetime != null) 'ludatetime': luDatetime,

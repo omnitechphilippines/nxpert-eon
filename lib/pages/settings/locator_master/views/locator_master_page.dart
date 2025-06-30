@@ -215,9 +215,19 @@ class _LocatorMasterPageState extends State<LocatorMasterPage> {
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _error.isNotEmpty
-                      ? Center(child: Text(_error))
+                      ? Center(
+                        child: Text(
+                          _error,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      )
                       : _locators.isEmpty
-                      ? const Center(child: Text('No locators found'))
+                      ? const Center(
+                        child: Text(
+                          'No locators found',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
                       : LocatorTable(
                         locators: _locators,
                         onUpdate: _updateLocator,

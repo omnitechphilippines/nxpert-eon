@@ -29,7 +29,7 @@ class Locator {
       locatorArea: json['Lmt_LocatorArea']?.toString().trim(),
       locatorOccupancyStatus: json['Lmt_OccupancyStatus']?.toString().trim(),
       locatorStatus: json['Lmt_Status']?.toString().trim(),
-      locatorWarehouseCode: json['Lmt_WarehouseCode']?.toString().trim(), // ✅ fixed
+      locatorWarehouseCode: json['Lmt_WarehouseCode']?.toString().trim(), 
       userLogin: json['User_login']?.toString().trim(),
       ludatetime: json['Lu_datetime']?.toString().trim(),
     );

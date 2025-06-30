@@ -6,24 +6,22 @@ import '../../../pages/settings/locator_master/controllers/locator_master_contro
 void showAddLocatorModal(BuildContext context, VoidCallback onLocatorAdded) {
   final TextEditingController codeController = TextEditingController();
   final TextEditingController descController = TextEditingController();
-  final TextEditingController typeController = TextEditingController();
-  final TextEditingController areaController = TextEditingController();
-  final TextEditingController userLoginController = TextEditingController();
-  final TextEditingController luDatetimeController = TextEditingController();
-
   final LocatorMasterController _controller = LocatorMasterController();
+
   String? selectedOccupancyStatus;
   String? selectedStatus;
+  String? selectedWarehouseCode;
+  String? selectedArea;
+  String? selectedLocatorType;
 
   bool areFieldsValid() {
     if (codeController.text.trim().isEmpty ||
         descController.text.trim().isEmpty ||
-        typeController.text.trim().isEmpty ||
-        areaController.text.trim().isEmpty ||
+        selectedLocatorType == null ||
+        selectedArea == null ||
         selectedOccupancyStatus == null ||
         selectedStatus == null ||
-        userLoginController.text.trim().isEmpty ||
-        luDatetimeController.text.trim().isEmpty) {
+        selectedWarehouseCode == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all required fields')),
       );
@@ -54,13 +52,15 @@ void showAddLocatorModal(BuildContext context, VoidCallback onLocatorAdded) {
                 final newLocator = Locator(
                   locatorCode: codeController.text.trim(),
                   locatorDesc: descController.text.trim(),
-                  locatorType: typeController.text.trim(),
-                  locatorArea: areaController.text.trim(),
+                  locatorType: selectedLocatorType,
+                  locatorArea: selectedArea,
                   locatorOccupancyStatus: selectedOccupancyStatus,
                   locatorStatus: selectedStatus,
-                  userLogin: userLoginController.text.trim(),
-                  ludatetime: luDatetimeController.text.trim(),
+                  locatorWarehouseCode: selectedWarehouseCode,
+                  userLogin: 'test',
+                  ludatetime: DateTime.now().toString(),
                 );
+                print(newLocator.locatorWarehouseCode);
 
                 final success = await _controller.insertLocator(newLocator);
 
@@ -102,149 +102,200 @@ void showAddLocatorModal(BuildContext context, VoidCallback onLocatorAdded) {
                     ),
                   ),
                 ),
-                content: isLoading
-                    ? const SizedBox(
-                        height: 150,
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : SizedBox(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            TextField(
-                              controller: codeController,
-                              decoration: const InputDecoration(
-                                labelText: 'Locator Code',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: descController,
-                              decoration: const InputDecoration(
-                                labelText: 'Description',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: typeController,
-                              decoration: const InputDecoration(
-                                labelText: 'Locator Type',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: areaController,
-                              decoration: const InputDecoration(
-                                labelText: 'Locator Area',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            DropdownButtonFormField<String>(
-                              value: selectedOccupancyStatus,
-                              decoration: const InputDecoration(
-                                labelText: 'Occupancy Status',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'Occupied',
-                                  child: Text('Occupied'),
+                content:
+                    isLoading
+                        ? const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : SizedBox(
+                          width: 500,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              TextField(
+                                controller: codeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Locator Code',
+                                  border: OutlineInputBorder(),
                                 ),
-                                DropdownMenuItem(
-                                  value: 'Vacant',
-                                  child: Text('Vacant'),
-                                ),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedOccupancyStatus = value;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 10),
-                            DropdownButtonFormField<String>(
-                              value: selectedStatus,
-                              decoration: const InputDecoration(
-                                labelText: 'Status',
-                                border: OutlineInputBorder(),
                               ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'A',
-                                  child: Text('A'),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: descController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Description',
+                                  border: OutlineInputBorder(),
                                 ),
-                                DropdownMenuItem(
-                                  value: 'F',
-                                  child: Text('F'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'N',
-                                  child: Text('N'),
-                                ),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedStatus = value;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: userLoginController,
-                              decoration: const InputDecoration(
-                                labelText: 'User Login',
-                                border: OutlineInputBorder(),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: luDatetimeController,
-                              decoration: const InputDecoration(
-                                labelText: 'Last Updated',
-                                border: OutlineInputBorder(),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedLocatorType,
+                                decoration: const InputDecoration(
+                                  labelText: 'Locator Type',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'S',
+                                    child: Text('S'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'C',
+                                    child: Text('C'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'ADC',
+                                    child: Text('ADC'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedLocatorType = value;
+                                  });
+                                },
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedArea,
+                                decoration: const InputDecoration(
+                                  labelText: 'Area',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'IN',
+                                    child: Text('IN'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'OUT',
+                                    child: Text('OUT'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedArea = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedOccupancyStatus,
+                                decoration: const InputDecoration(
+                                  labelText: 'Occupancy',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'E',
+                                    child: Text('E'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'O',
+                                    child: Text('O'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedOccupancyStatus = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedStatus,
+                                decoration: const InputDecoration(
+                                  labelText: 'Status',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'A',
+                                    child: Text('A'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'F',
+                                    child: Text('F'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'N',
+                                    child: Text('N'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedStatus = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedWarehouseCode,
+                                decoration: const InputDecoration(
+                                  labelText: 'Warehouse',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: '000',
+                                    child: Text('000'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'PRD',
+                                    child: Text('PRD'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedWarehouseCode = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                actions: isLoading
-                    ? []
-                    : <Widget>[
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
+                actions:
+                    isLoading
+                        ? []
+                        : <Widget>[
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: submitForm,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
+                          ElevatedButton(
+                            onPressed: submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
               );
             },
           ),
