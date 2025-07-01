@@ -211,11 +211,6 @@ class _KanbanMasterPageState extends State<KanbanMasterPage> {
                       ? Center(child: Text(_error))
                       : KanbanTable(
                           kanbans: _kanbans,
-                          onUpdate: (index, updatedKanban) {
-                            setState(() {
-                              _kanbans[index] = updatedKanban;
-                            });
-                          },
                         ),
             ),
           ),

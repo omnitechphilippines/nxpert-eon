@@ -113,12 +113,12 @@ void showAddKanbanModal(BuildContext context, VoidCallback onKanbanAdded) {
                                 ),
                                 items: const [
                                   DropdownMenuItem(
-                                    value: 'CH3',
+                                    value: '8972787453',
                                     child: Text('CH3'),
                                   ),
                                   DropdownMenuItem(
                                     value: 'CL3',
-                                    child: Text('CL3'),
+                                    child: Text('8972787463'),
                                   ),
                                 ],
                                 onChanged:

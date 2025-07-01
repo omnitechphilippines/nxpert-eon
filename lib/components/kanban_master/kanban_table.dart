@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../pages/settings/kanban_master/models/kanban_model.dart';
-import './update_kanban_modal.dart';
 
 class KanbanTable extends StatelessWidget {
   final List<Kanban> kanbans;
-  final void Function(int index, Kanban updatedKanban)? onUpdate;
 
-  const KanbanTable({super.key, required this.kanbans, this.onUpdate});
+  const KanbanTable({super.key, required this.kanbans});
 
   @override
   Widget build(BuildContext context) {
@@ -82,14 +80,6 @@ class KanbanTable extends StatelessWidget {
                       ),
                     ),
                   ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Action',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
                 ],
                 rows: List.generate(kanbans.length, (index) {
                   final kanban = kanbans[index];
@@ -103,46 +93,6 @@ class KanbanTable extends StatelessWidget {
                       ),
                       DataCell(Text(kanban.kanbanDefaultLocator ?? 'empty')),
                       DataCell(Text(kanban.kanbanRemarks ?? 'empty')),
-
-                      DataCell(
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed:
-                                  onUpdate != null
-                                      ? () {
-                                        showUpdateKanbanModal(
-                                          context,
-                                          kanban,
-                                          (updated) =>
-                                              onUpdate!(index, updated),
-                                        );
-                                      }
-                                      : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero,
-                                ),
-                              ),
-                              icon: const Icon(
-                                Icons.edit,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                              label: const Text(
-                                'Update',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   );
                 }),
