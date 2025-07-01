@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
+import '../../pages/settings/kanban_master/controllers/kanban_master_controller.dart';
+import '../../pages/settings/kanban_master/models/kanban_model.dart';
 
 void showAddKanbanModal(BuildContext context, VoidCallback onKanbanAdded) {
   final TextEditingController descriptionController = TextEditingController();
@@ -8,6 +10,8 @@ void showAddKanbanModal(BuildContext context, VoidCallback onKanbanAdded) {
 
   String? selectedPartNo;
   String? selectedDefaultLocator;
+
+  final controller = KanbanMasterController();
 
   bool areFieldsValid() {
     if (selectedPartNo == null ||
@@ -42,20 +46,36 @@ void showAddKanbanModal(BuildContext context, VoidCallback onKanbanAdded) {
 
                 setState(() => isLoading = true);
 
-                // Simulated API call or insert here
-                await Future.delayed(const Duration(seconds: 1));
+                final success = await controller.insertKanban(
+                  Kanban(
+                    kanbanPartNo: selectedPartNo!,
+                    kanbanDescription: descriptionController.text.trim(),
+                    kanbanCapacity: capacityController.text.trim(),
+                    kanbanDefaultLocator: selectedDefaultLocator!,
+                    kanbanRemarks: remarksController.text.trim(),
+                  ),
+                );
 
                 if (!context.mounted) return;
                 setState(() => isLoading = false);
-                Navigator.pop(context); // Close modal
-                onKanbanAdded();
+                Navigator.pop(context);
 
-                await QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.success,
-                  title: 'Success',
-                  text: 'Kanban successfully added!',
-                );
+                if (success) {
+                  onKanbanAdded();
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.success,
+                    title: 'Success',
+                    text: 'Kanban successfully added!',
+                  );
+                } else {
+                  await QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.error,
+                    title: 'Error',
+                    text: 'Failed to add Kanban. Please try again.',
+                  );
+                }
               }
 
               return AlertDialog(
@@ -74,116 +94,121 @@ void showAddKanbanModal(BuildContext context, VoidCallback onKanbanAdded) {
                     ),
                   ),
                 ),
-                content: isLoading
-                    ? const SizedBox(
-                        height: 150,
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : SizedBox(
-                        width: 500,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            DropdownButtonFormField<String>(
-                              value: selectedPartNo,
-                              decoration: const InputDecoration(
-                                labelText: 'Part No',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'CH3',
-                                  child: Text('CH3'),
+                content:
+                    isLoading
+                        ? const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : SizedBox(
+                          width: 500,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              DropdownButtonFormField<String>(
+                                value: selectedPartNo,
+                                decoration: const InputDecoration(
+                                  labelText: 'Part No',
+                                  border: OutlineInputBorder(),
                                 ),
-                                DropdownMenuItem(
-                                  value: 'CL3',
-                                  child: Text('CL3'),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'CH3',
+                                    child: Text('CH3'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'CL3',
+                                    child: Text('CL3'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) =>
+                                        setState(() => selectedPartNo = value),
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: descriptionController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Description',
+                                  border: OutlineInputBorder(),
                                 ),
-                              ],
-                              onChanged: (value) =>
-                                  setState(() => selectedPartNo = value),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: descriptionController,
-                              decoration: const InputDecoration(
-                                labelText: 'Description',
-                                border: OutlineInputBorder(),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: capacityController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Capacity',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            DropdownButtonFormField<String>(
-                              value: selectedDefaultLocator,
-                              decoration: const InputDecoration(
-                                labelText: 'Default Locator',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 'm-0001',
-                                  child: Text('m-0001'),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: capacityController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Capacity',
+                                  border: OutlineInputBorder(),
                                 ),
-                                DropdownMenuItem(
-                                  value: 'a-0001',
-                                  child: Text('a-0001'),
-                                ),
-                              ],
-                              onChanged: (value) =>
-                                  setState(() => selectedDefaultLocator = value),
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: remarksController,
-                              decoration: const InputDecoration(
-                                labelText: 'Remarks',
-                                border: OutlineInputBorder(),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                actions: isLoading
-                    ? []
-                    : [
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ),
-                          ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white),
+                              const SizedBox(height: 10),
+                              DropdownButtonFormField<String>(
+                                value: selectedDefaultLocator,
+                                decoration: const InputDecoration(
+                                  labelText: 'Default Locator',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'm-0001',
+                                    child: Text('m-0001'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'a-0001',
+                                    child: Text('a-0001'),
+                                  ),
+                                ],
+                                onChanged:
+                                    (value) => setState(
+                                      () => selectedDefaultLocator = value,
+                                    ),
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: remarksController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Remarks',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: submitForm,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
+                actions:
+                    isLoading
+                        ? []
+                        : [
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          ElevatedButton(
+                            onPressed: submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
               );
             },
           ),
