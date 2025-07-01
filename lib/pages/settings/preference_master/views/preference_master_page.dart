@@ -19,7 +19,7 @@ class PreferenceMasterPage extends StatelessWidget {
         spacing: 8,
         children: <Widget>[
           HeaderBanner(subtitle: 'PREFERENCE MASTER'),
-          Expanded(child: Center(child: Text('Preference Master'))),
+          Expanded(child: Center(child: Text('Excluded from system'))),
           Footer(),
         ],
       ),
