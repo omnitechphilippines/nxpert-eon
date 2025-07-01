@@ -10,6 +10,7 @@ import '../../../../components/shift_master/search_shift_modal.dart';
 import '../../../../components/shift_master/shift_table.dart';
 import '../models/shift_model.dart';
 import '../controllers/shift_master_controller.dart';
+import '../../../../components/shift_master/delete_shift_modal.dart';
 
 class ShiftMasterPage extends StatefulWidget {
   const ShiftMasterPage({super.key});
@@ -291,7 +292,34 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                           // your update logic
                         },
                         onDelete: (index) {
-                          // your delete logic
+                          final shift = _shifts[index];
+                          showConfirmDeleteShiftModal(
+                            context,
+                            shift.shiftCode,
+                            (code) async {
+                              final success = await _controller.deleteShift(
+                                code,
+                              );
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Shift "$code" deleted successfully',
+                                    ),
+                                  ),
+                                );
+                                _loadShifts();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to delete shift "$code"',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          );
                         },
                       ),
             ),

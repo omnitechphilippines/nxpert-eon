@@ -126,4 +126,27 @@ class ShiftMasterController {
       return false;
     }
   }
+
+  // Delete a shift by shiftCode
+  Future<bool> deleteShift(String shiftCode) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}shiftMasterDeleteShift');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'shiftCode': shiftCode}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Delete Shift Failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Delete Shift Error: $e');
+      return false;
+    }
+  }
 }
