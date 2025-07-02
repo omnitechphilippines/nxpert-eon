@@ -31,41 +31,46 @@ class ProductTable extends StatelessWidget {
             border: TableBorder.all(color: Colors.grey.shade300),
             columns: const [
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Product Code',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                label: Text(
+                  'Product Code',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Product Name',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                label: Text(
+                  'Product Name',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Specification',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                label: Text(
+                  'Cost Center',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Internal Code',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                label: Text('Category', style: TextStyle(color: Colors.white)),
+              ),
+              DataColumn(
+                label: Text('Source', style: TextStyle(color: Colors.white)),
+              ),
+              DataColumn(
+                label: Text('BM Status', style: TextStyle(color: Colors.white)),
+              ),
+              DataColumn(
+                label: Text(
+                  'Specification',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text('Actions', style: TextStyle(color: Colors.white)),
+                label: Text(
+                  'Internal Code',
+                  style: TextStyle(color: Colors.white),
                 ),
+              ),
+              DataColumn(
+                label: Text('Actions', style: TextStyle(color: Colors.white)),
               ),
             ],
             rows: List.generate(products.length, (index) {
@@ -74,70 +79,73 @@ class ProductTable extends StatelessWidget {
                 cells: [
                   DataCell(Text(product.productCode)),
                   DataCell(Text(product.productName)),
+                  DataCell(Text(product.costCenterCode)),
+                  DataCell(Text(product.prodCategory)),
+                  DataCell(Text(product.prodSource)),
+                  DataCell(Text(product.bmStatus)),
                   DataCell(Text(product.productSpecification)),
                   DataCell(Text(product.productInternalCode)),
                   DataCell(
-                    Align(
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () => showUpdateProductModal(
-                              context,
-                              product,
-                              (updatedProduct) =>
-                                  onUpdate(index, updatedProduct),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed:
+                              () => showUpdateProductModal(
+                                context,
+                                product,
+                                (updatedProduct) =>
+                                    onUpdate(index, updatedProduct),
                               ),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                              ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                            icon: const Icon(
-                              Icons.edit,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              'Update',
-                              style: TextStyle(color: Colors.white),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            onPressed: () => showConfirmDeleteModal(
-                              context,
-                              index,
-                              onDelete,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
+                          icon: const Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Update',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed:
+                              () => showConfirmDeleteModal(
+                                context,
+                                index,
+                                onDelete,
                               ),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.zero,
-                              ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                            icon: const Icon(
-                              Icons.delete,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.white),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
                             ),
                           ),
-                        ],
-                      ),
+                          icon: const Icon(
+                            Icons.delete,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
