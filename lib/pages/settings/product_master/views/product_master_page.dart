@@ -21,7 +21,7 @@ class ProductMasterPage extends StatefulWidget {
 
 class _ProductMasterPageState extends State<ProductMasterPage> {
   final ProductMasterController _controller = ProductMasterController();
-  List<Product> _products = []; 
+  List<Product> _products = [];
   bool _isLoading = true;
   String _error = '';
   int _currentPage = 1;
@@ -70,11 +70,10 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(title: 'NXPERT EON'),
       drawer: SideNav(
-        currentRoute: GoRouter.of(context)
-            .routerDelegate
-            .currentConfiguration
-            .uri
-            .toString(),
+        currentRoute:
+            GoRouter.of(
+              context,
+            ).routerDelegate.currentConfiguration.uri.toString(),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,7 +82,10 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
 
           // Top Controls
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -92,12 +94,15 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                     const Text("Show "),
                     DropdownButton<int>(
                       value: _entriesPerPage,
-                      items: [5, 10, 25, 50, 100]
-                          .map((count) => DropdownMenuItem<int>(
-                                value: count,
-                                child: Text('$count'),
-                              ))
-                          .toList(),
+                      items:
+                          [5, 10, 25, 50, 100]
+                              .map(
+                                (count) => DropdownMenuItem<int>(
+                                  value: count,
+                                  child: Text('$count'),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
@@ -114,7 +119,21 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: () => showSearchProductModal(context),
+                      onPressed:
+                          () => showSearchProductModal(
+                            context,
+                            controller: _controller,
+                            currentPage: _currentPage,
+                            limit: _entriesPerPage,
+                            onSearchResult: (products, totalCount) {
+                              setState(() {
+                                _products = products;
+                                _totalCount = totalCount;
+                                _currentPage =
+                                    1; // Optional: reset to first page on new search
+                              });
+                            },
+                          ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -132,19 +151,21 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                         ],
                       ),
                     ),
+
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () => showAddProductModal(context, (_) {
-                        _currentPage = 1;
-                        _loadProducts();
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.success,
-                          title: 'Added!',
-                          text: 'Product has been successfully added.',
-                          confirmBtnColor: Colors.green,
-                        );
-                      }),
+                      onPressed:
+                          () => showAddProductModal(context, (_) {
+                            _currentPage = 1;
+                            _loadProducts();
+                            QuickAlert.show(
+                              context: context,
+                              type: QuickAlertType.success,
+                              title: 'Added!',
+                              text: 'Product has been successfully added.',
+                              confirmBtnColor: Colors.green,
+                            );
+                          }),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -172,42 +193,46 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error.isNotEmpty
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _error.isNotEmpty
                       ? Center(child: Text(_error))
                       : ProductTable(
-                          products: _products,
-                          onDelete: (index) async {
-                            _currentPage = 1;
-                            await _loadProducts();
-                            QuickAlert.show(
-                              context: context,
-                              type: QuickAlertType.success,
-                              title: 'Deleted!',
-                              text: 'Product has been successfully deleted.',
-                              confirmBtnColor: Colors.green,
-                            );
-                          },
-                          onUpdate: (index, updatedProduct) async {
-                            _currentPage = 1;
-                            await _loadProducts();
-                            QuickAlert.show(
-                              context: context,
-                              type: QuickAlertType.success,
-                              title: 'Updated!',
-                              text: 'Product has been successfully updated.',
-                              confirmBtnColor: Colors.green,
-                            );
-                          },
-                        ),
+                        products: _products,
+                        onDelete: (index) async {
+                          _currentPage = 1;
+                          await _loadProducts();
+                          QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.success,
+                            title: 'Deleted!',
+                            text: 'Product has been successfully deleted.',
+                            confirmBtnColor: Colors.green,
+                          );
+                        },
+                        onUpdate: (index, updatedProduct) async {
+                          _currentPage = 1;
+                          await _loadProducts();
+                          QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.success,
+                            title: 'Updated!',
+                            text: 'Product has been successfully updated.',
+                            confirmBtnColor: Colors.green,
+                          );
+                        },
+                      ),
             ),
           ),
 
           // Pagination Controls
           if (!_isLoading && _error.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -221,22 +246,24 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                   Row(
                     children: [
                       TextButton(
-                        onPressed: _currentPage > 1
-                            ? () {
-                                setState(() => _currentPage--);
-                                _loadProducts();
-                              }
-                            : null,
+                        onPressed:
+                            _currentPage > 1
+                                ? () {
+                                  setState(() => _currentPage--);
+                                  _loadProducts();
+                                }
+                                : null,
                         child: const Text("Previous"),
                       ),
                       Text('Page $_currentPage of $totalPages'),
                       TextButton(
-                        onPressed: (_currentPage * _entriesPerPage < _totalCount)
-                            ? () {
-                                setState(() => _currentPage++);
-                                _loadProducts();
-                              }
-                            : null,
+                        onPressed:
+                            (_currentPage * _entriesPerPage < _totalCount)
+                                ? () {
+                                  setState(() => _currentPage++);
+                                  _loadProducts();
+                                }
+                                : null,
                         child: const Text("Next"),
                       ),
                     ],

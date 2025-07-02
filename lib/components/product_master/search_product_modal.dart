@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../pages/settings/product_master/models/product_model.dart';
+import '../../pages/settings/product_master/controllers/product_master_controller.dart';
 
-void showSearchProductModal(BuildContext context) {
+void showSearchProductModal(
+  BuildContext context, {
+  required ProductMasterController controller,
+  required void Function(List<Product> products, int totalCount) onSearchResult,
+  required int currentPage,
+  required int limit,
+}) {
   final TextEditingController productCodeController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController specificationController = TextEditingController();
@@ -13,26 +21,31 @@ void showSearchProductModal(BuildContext context) {
     internalCodeController.clear();
   }
 
-  void submitForm([
-    String? code,
-    String? name,
-    String? specification,
-    String? internalCode,
-  ]) {
-    final String productCode = code ?? '';
-    final String productName = name ?? '';
-    final String productSpecification = specification ?? '';
-    final String productInternalCode = internalCode ?? '';
+  Future<void> submitForm() async {
+    final String code = productCodeController.text.trim();
+    final String name = nameController.text.trim();
+    final String specification = specificationController.text.trim();
+    final String internalCode = internalCodeController.text.trim();
 
-    clearFields();
+    try {
+      final response = await controller.searchProducts(
+        page: currentPage,
+        limit: limit,
+        productCode: code.isEmpty ? null : code,
+        productName: name.isEmpty ? null : name,
+        productSpecification: specification.isEmpty ? null : specification,
+        internalProdCode: internalCode.isEmpty ? null : internalCode,
+      );
 
-    print('Searching Product:');
-    print('Product Code: $productCode');
-    print('Product Name: $productName');
-    print('Specification: $productSpecification');
-    print('Internal Code: $productInternalCode');
-
-    Navigator.pop(context);
+      clearFields();
+      Navigator.pop(context);
+      onSearchResult(response.products, response.totalCount);
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Search failed: $e')));
+    }
   }
 
   showGeneralDialog(
@@ -46,14 +59,19 @@ void showSearchProductModal(BuildContext context) {
         child: Material(
           color: Colors.transparent,
           child: AlertDialog(
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
             titlePadding: EdgeInsets.zero,
             title: Container(
               padding: const EdgeInsets.all(16),
               color: Colors.blue,
               child: const Text(
                 'Search Product',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             content: SizedBox(
@@ -66,7 +84,9 @@ void showSearchProductModal(BuildContext context) {
                     decoration: const InputDecoration(
                       labelText: 'Product Code',
                       labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
                         borderSide: BorderSide(color: Colors.blue),
@@ -79,7 +99,9 @@ void showSearchProductModal(BuildContext context) {
                     decoration: const InputDecoration(
                       labelText: 'Product Name',
                       labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
                         borderSide: BorderSide(color: Colors.blue),
@@ -92,7 +114,9 @@ void showSearchProductModal(BuildContext context) {
                     decoration: const InputDecoration(
                       labelText: 'Product Specification',
                       labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
                         borderSide: BorderSide(color: Colors.blue),
@@ -105,7 +129,9 @@ void showSearchProductModal(BuildContext context) {
                     decoration: const InputDecoration(
                       labelText: 'Internal Product Code',
                       labelStyle: TextStyle(color: Colors.blueGrey),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.zero,
                         borderSide: BorderSide(color: Colors.blue),
@@ -124,17 +150,13 @@ void showSearchProductModal(BuildContext context) {
                     borderRadius: BorderRadius.zero,
                   ),
                 ),
-                child: const Text('Cancel', style: TextStyle(fontSize: 14, color: Colors.white)),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontSize: 14, color: Colors.white),
+                ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  final String code = productCodeController.text.trim();
-                  final String name = nameController.text.trim();
-                  final String specification = specificationController.text.trim();
-                  final String internalCode = internalCodeController.text.trim();
-
-                  submitForm(code, name, specification, internalCode);
-                },
+                onPressed: submitForm,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: const RoundedRectangleBorder(
@@ -143,7 +165,11 @@ void showSearchProductModal(BuildContext context) {
                 ),
                 child: const Text(
                   'Search',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

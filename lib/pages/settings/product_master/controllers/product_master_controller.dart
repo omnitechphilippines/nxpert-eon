@@ -32,20 +32,15 @@ class ProductMasterController {
     String? productName,
     String? productSpecification,
     String? internalProdCode,
-    String? prodCategory,
-    String? prodSource,
-    String? bmStatus,
   }) async {
     final queryParams = {
       'page': page.toString(),
       'limit': limit.toString(),
       if (productCode != null) 'productCode': productCode,
       if (productName != null) 'productName': productName,
-      if (productSpecification != null) 'productSpecification': productSpecification,
+      if (productSpecification != null)
+        'productSpecification': productSpecification,
       if (internalProdCode != null) 'internalProdCode': internalProdCode,
-      if (prodCategory != null) 'prodCategory': prodCategory,
-      if (prodSource != null) 'prodSource': prodSource,
-      if (bmStatus != null) 'bmStatus': bmStatus,
     };
 
     final uri = Uri.parse(
