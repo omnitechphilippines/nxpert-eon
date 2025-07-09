@@ -11,7 +11,7 @@ class ShiftMasterController {
     required int limit,
   }) async {
     final url = Uri.parse(
-      '${ApiConfig.baseUrl}shiftMasterGetShifts?page=$page&limit=$limit',
+      '${ApiConfig.baseUrl}api/v1/get-shifts?page=$page&limit=$limit',
     );
     final response = await http.get(url);
 
@@ -42,7 +42,7 @@ class ShiftMasterController {
     };
 
     final uri = Uri.parse(
-      '${ApiConfig.baseUrl}shiftMasterSearchShifts',
+      '${ApiConfig.baseUrl}api/v1/search-shifts',
     ).replace(queryParameters: queryParams);
 
     final response = await http.get(uri);
@@ -56,7 +56,7 @@ class ShiftMasterController {
 
   // Insert a new shift
   Future<bool> insertShift(ShiftModel shift) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}shiftMasterAddShift');
+    final url = Uri.parse('${ApiConfig.baseUrl}api/v1/add-shift');
 
     print(shift);
     try {
@@ -92,19 +92,19 @@ class ShiftMasterController {
     String? status,
     String? user,
   }) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}shiftMasterUpdateShift');
+    final url = Uri.parse('${ApiConfig.baseUrl}api/v1/update-shift');
 
     final Map<String, dynamic> updateData = {
-      'shiftCode': shiftCode,
-      if (shiftDescription != null) 'shiftDescription': shiftDescription,
-      if (scheduleType != null) 'scheduleType': scheduleType,
-      if (timeIn != null) 'timeIn': timeIn.toIso8601String(),
-      if (breakStart != null) 'breakStart': breakStart.toIso8601String(),
-      if (breakEnd != null) 'breakEnd': breakEnd.toIso8601String(),
-      if (timeOut != null) 'timeOut': timeOut.toIso8601String(),
-      if (totalHours != null) 'totalHours': totalHours,
-      if (status != null) 'status': status,
-      if (user != null) 'user': user,
+      'Scm_ShiftCode': shiftCode,
+      if (shiftDescription != null) 'Scm_ShiftDescription': shiftDescription,
+      if (scheduleType != null) 'Scm_ScheduleType': scheduleType,
+      if (timeIn != null) 'Scm_TimeIn': timeIn.toIso8601String(),
+      if (breakStart != null) 'Scm_BreakStart': breakStart.toIso8601String(),
+      if (breakEnd != null) 'Scm_BreakEnd': breakEnd.toIso8601String(),
+      if (timeOut != null) 'Scm_TimeOut': timeOut.toIso8601String(),
+      if (totalHours != null) 'Scm_TotalHours': totalHours,
+      if (status != null) 'Scm_Status': status,
+      if (user != null) 'Scm_User': user,
     };
 
     try {
@@ -129,7 +129,7 @@ class ShiftMasterController {
 
   // Delete a shift by shiftCode
   Future<bool> deleteShift(String shiftCode) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}shiftMasterDeleteShift');
+    final url = Uri.parse('${ApiConfig.baseUrl}api/v1/delete-shift');
 
     try {
       final response = await http.delete(

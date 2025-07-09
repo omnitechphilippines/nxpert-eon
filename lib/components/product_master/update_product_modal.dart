@@ -46,7 +46,7 @@ void showUpdateProductModal(
   String? selectedLeadTimeUnit = product.leadTimeUnit;
 
   void submitForm() {
-    final updatedProduct = Product(
+    final Product updatedProduct = Product(
       productCode: productCodeController.text.trim(),
       productName: nameController.text.trim(),
       productSpecification: specificationController.text.trim(),
@@ -105,7 +105,7 @@ void showUpdateProductModal(
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  children: <Widget>[
                     TextField(
                       controller: productCodeController,
                       decoration: _inputDecoration('Product Code'),
@@ -135,15 +135,15 @@ void showUpdateProductModal(
                         suffixIcon: Icon(Icons.calendar_today),
                       ),
                       onTap: () async {
-                        final pickedDate = await showDatePicker(
+                        final DateTime? pickedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
-                          builder: (context, child) {
+                          builder: (BuildContext context, Widget? child) {
                             return Theme(
                               data: Theme.of(context).copyWith(
-                                colorScheme: ColorScheme.light(
+                                colorScheme: const ColorScheme.light(
                                   primary: Colors.blue, // header background
                                   onPrimary: Colors.white, // header text
                                   onSurface: Colors.black, // default text color
@@ -170,26 +170,26 @@ void showUpdateProductModal(
                     DropdownButtonFormField<String>(
                       value: selectedCategory,
                       decoration: _inputDecoration('Product Category'),
-                      items: const [
+                      items: const <DropdownMenuItem<String>>[
                         DropdownMenuItem(value: 'G', child: Text('G - Goods')),
                         DropdownMenuItem(
                           value: 'S',
                           child: Text('S - Services'),
                         ),
                       ],
-                      onChanged: (val) => selectedCategory = val!,
+                      onChanged: (String? val) => selectedCategory = val!,
                     ),
                     const SizedBox(height: 10),
                     DropdownButtonFormField<String>(
                       value: selectedSource,
                       decoration: _inputDecoration('Product Source'),
-                      items: const [
+                      items: const <DropdownMenuItem<String>>[
                         DropdownMenuItem(
                           value: 'M',
                           child: Text('M - Manufacturing'),
                         ),
                       ],
-                      onChanged: (val) => selectedSource = val!,
+                      onChanged: (String? val) => selectedSource = val!,
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -204,7 +204,7 @@ void showUpdateProductModal(
                       child: SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         value: requireCPO,
-                        onChanged: (val) => requireCPO = val,
+                        onChanged: (bool val) => requireCPO = val,
                         title: const Text('Require CPO'),
                       ),
                     ),
@@ -221,7 +221,7 @@ void showUpdateProductModal(
                       child: SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         value: hasCurMthSched,
-                        onChanged: (val) => hasCurMthSched = val,
+                        onChanged: (bool val) => hasCurMthSched = val,
                         title: const Text('Has Current Month Schedule'),
                       ),
                     ),
@@ -238,7 +238,7 @@ void showUpdateProductModal(
                       child: SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         value: hasNxtMthSched,
-                        onChanged: (val) => hasNxtMthSched = val,
+                        onChanged: (bool val) => hasNxtMthSched = val,
                         title: const Text('Has Next Month Schedule'),
                       ),
                     ),
@@ -246,10 +246,10 @@ void showUpdateProductModal(
                     DropdownButtonFormField<String>(
                       value: selectedPSGroupCode,
                       decoration: _inputDecoration('PS Group Code'),
-                      items: const [
+                      items: const <DropdownMenuItem<String>>[
                         DropdownMenuItem(value: '0', child: Text('0')),
                       ],
-                      onChanged: (val) => selectedPSGroupCode = val!,
+                      onChanged: (String? val) => selectedPSGroupCode = val!,
                     ),
                     const SizedBox(height: 10),
 
@@ -276,7 +276,7 @@ void showUpdateProductModal(
                     DropdownButtonFormField<String>(
                       value: selectedLeadTimeUnit,
                       decoration: _inputDecoration('Lead Time Unit'),
-                      items: const [
+                      items: const <DropdownMenuItem<String>>[
                         DropdownMenuItem(value: 'H', child: Text('H - Hours')),
                         DropdownMenuItem(
                           value: 'M',
@@ -287,7 +287,7 @@ void showUpdateProductModal(
                           child: Text('S - Seconds'),
                         ),
                       ],
-                      onChanged: (val) => selectedLeadTimeUnit = val!,
+                      onChanged: (String? val) => selectedLeadTimeUnit = val!,
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -298,7 +298,7 @@ void showUpdateProductModal(
                 ),
               ),
             ),
-            actions: [
+            actions: <Widget>[
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
@@ -330,7 +330,7 @@ void showUpdateProductModal(
         ),
       );
     },
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
+    transitionBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
       return ScaleTransition(
         scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
         child: child,

@@ -1,5 +1,7 @@
+// No changes in your imports or class declaration
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../../../components/footer.dart';
 import '../../../../components/header_banner.dart';
@@ -11,6 +13,7 @@ import '../../../../components/shift_master/shift_table.dart';
 import '../models/shift_model.dart';
 import '../controllers/shift_master_controller.dart';
 import '../../../../components/shift_master/delete_shift_modal.dart';
+import '../../../../components/shift_master/update_shift_modal.dart';
 
 class ShiftMasterPage extends StatefulWidget {
   const ShiftMasterPage({super.key});
@@ -50,7 +53,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
       total -= breakDuration;
     }
 
-    return (total / 60).round(); // Rounded to whole hours (int)
+    return (total / 60).round();
   }
 
   Future<void> _loadShifts() async {
@@ -102,7 +105,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
         children: [
           const HeaderBanner(subtitle: 'SHIFT MASTER'),
 
-          // Top Controls: Pagination & Actions
+          // Top Controls
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
@@ -111,7 +114,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Entries per page dropdown
+                // Entries dropdown
                 Row(
                   children: [
                     const Text("Show "),
@@ -120,7 +123,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                       items:
                           [5, 10, 25, 50, 100]
                               .map(
-                                (count) => DropdownMenuItem<int>(
+                                (count) => DropdownMenuItem(
                                   value: count,
                                   child: Text('$count'),
                                 ),
@@ -172,7 +175,6 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                             }
                           },
                           onReset: () async {
-                            // Reset back to all shifts
                             setState(() => _isLoading = true);
                             try {
                               final result = await _controller.getShifts(
@@ -210,7 +212,6 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                         ],
                       ),
                     ),
-
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
@@ -218,7 +219,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                           final shift = ShiftModel(
                             shiftCode: newShift['shiftCode'],
                             shiftDescription:
-                                newShift['shiftDescription'] ?? 'way sud',
+                                newShift['shiftDescription'] ?? '',
                             scheduleType: newShift['shiftType'],
                             timeIn: _toDateTime(newShift['timeIn']),
                             breakStart:
@@ -254,7 +255,6 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                           }
                         });
                       },
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -277,7 +277,7 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
             ),
           ),
 
-          // Shift Table or Loading/Error
+          // Table section
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -287,45 +287,51 @@ class _ShiftMasterPageState extends State<ShiftMasterPage> {
                       : _error.isNotEmpty
                       ? Center(child: Text(_error))
                       : ShiftTable(
-                        shifts: _shifts, // ✅ this is List<ShiftModel>
+                        shifts: _shifts,
                         onUpdate: (index) {
-                          // your update logic
+                          showUpdateShiftModal(context, index, _shifts, (
+                            i,
+                            updatedShift,
+                          ) {
+                            setState(() {
+                              _shifts[i] = updatedShift;
+                            });
+                          });
                         },
+
                         onDelete: (index) {
                           final shift = _shifts[index];
-                          showConfirmDeleteShiftModal(
-                            context,
-                            shift.shiftCode,
-                            (code) async {
-                              final success = await _controller.deleteShift(
-                                code,
+                          showConfirmDeleteShiftModal(context, shift.shiftCode, (
+                            code,
+                          ) async {
+                            final success = await _controller.deleteShift(code);
+
+                            if (!context.mounted) return;
+
+                            if (success) {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.success,
+                                title: 'Deleted',
+                                text: 'Shift "$code" deleted successfully.',
                               );
-                              if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Shift "$code" deleted successfully',
-                                    ),
-                                  ),
-                                );
-                                _loadShifts();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Failed to delete shift "$code"',
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          );
+                              _loadShifts();
+                            } else {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                title: 'Failed',
+                                text:
+                                    'Failed to delete shift "$code". Please try again.',
+                              );
+                            }
+                          });
                         },
                       ),
             ),
           ),
 
-          // Pagination & Footer
+          // Pagination
           if (!_isLoading && _error.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(
