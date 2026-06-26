@@ -3,8 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  file_saver
-  printing
+  app_links
+  passkeys_windows
   url_launcher_windows
 )
 

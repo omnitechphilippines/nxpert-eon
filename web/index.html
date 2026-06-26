@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="An IOT project.">
+  <meta name="description" content="An IOT project for ERP.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,8 +31,21 @@
 
   <title>NXPERT EON</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    .center {
+    position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: 0 -50% 0 0;
+      transform: translate(-50%, -50%)
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+    <script src="flutter_bootstrap.js" async></script>
+    <div id="loader" class="container">
+      <img src="img/splash.png" class="center"/>
+    </div>
+    <script src="https://github.com/corbado/flutter-passkeys/releases/download/2.4.0/bundle.js"></script>
 </body>
 </html>
