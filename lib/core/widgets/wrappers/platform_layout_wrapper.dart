@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../app/modules/layout/views/layout_view.dart';
+import '../../../app/modules/layout/views/layout_view.dart';
 
 class PlatformLayoutWrapper extends StatelessWidget {
   final Widget child;

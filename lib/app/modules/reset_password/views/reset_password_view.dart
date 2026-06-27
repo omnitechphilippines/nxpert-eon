@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
@@ -6,7 +7,7 @@ import 'package:get/get.dart';
 import '../../../../core/constants/asset_constants.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/eon_text.dart';
+import '../../../../core/widgets/texts/eon_text.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/reset_password_controller.dart';
 
@@ -28,6 +29,7 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
             : !context.isMobile && !context.isDarkMode
             ? const Color(0xfff3f3f5)
             : Colors.transparent,
+        automaticallyImplyLeading: kIsWeb ? false : true,
         actions: <Widget>[
           Padding(
             padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),

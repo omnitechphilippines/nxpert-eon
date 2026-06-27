@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../../../../core/widgets/platform_layout_wrapper.dart';
+import '../../../../core/widgets/wrappers/platform_layout_wrapper.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {

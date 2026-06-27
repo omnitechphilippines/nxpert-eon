@@ -6,7 +6,8 @@ import '../../../routes/app_pages.dart';
 
 class LayoutController extends GetxController {
   final RxBool isCondensed = false.obs;
-  final RxString currentRoute = Get.currentRoute.obs;
+  final RxString currentRoute = kIsWeb ? Get.currentRoute.obs : Routes.DASHBOARD.obs;
+  final RxString hoveredRoute = ''.obs;
 
   void get toggleLeftBar => isCondensed.toggle();
 
@@ -17,7 +18,7 @@ class LayoutController extends GetxController {
 
     currentRoute.value = route;
     if (kIsWeb) {
-      Get.offAllNamed(route);
+      Get.toNamed(route);
     } else {
       Get.toNamed(route, id: 1);
     }

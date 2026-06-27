@@ -5,10 +5,11 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get/get.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/tabler.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/constants/asset_constants.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/eon_text.dart';
+import '../../../../core/widgets/texts/eon_text.dart';
 import '../../../routes/app_pages.dart';
 import '../../dashboard/views/dashboard_view.dart';
 import '../../machine_entry/views/machine_entry_view.dart';
@@ -26,7 +27,6 @@ class LayoutView extends GetView<LayoutController> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final LayoutController controller = Get.put(LayoutController(), permanent: true);
 
     return Scaffold(
@@ -40,79 +40,82 @@ class LayoutView extends GetView<LayoutController> {
               width: controller.isCondensed.value ? 70 : 240,
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // Logo Section
-                  SizedBox(
-                    height: 70,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          InkWell(
-                            onTap: () => controller.changePage(Routes.DASHBOARD),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                if (controller.isCondensed.value) Image.asset(AssetConstants.nxpertEon, height: 19),
-                                if (!controller.isCondensed.value)
-                                  Row(
-                                    children: <Widget>[
-                                      Image.asset(AssetConstants.nxpertEon, height: 24),
-                                      const SizedBox(width: 10),
-                                      const EonText.titleLarge('NXPERT EON', fontWeight: FontWeight.w800, color: AppColors.light, fontSize: 16),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                          if (!controller.isCondensed.value) const Spacer(),
-                          if (!controller.isCondensed.value)
+              child: Material(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Logo Section
+                    SizedBox(
+                      height: 70,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: controller.isCondensed.value ? 4 : 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
                             InkWell(
-                              splashColor: theme.colorScheme.onSurface,
-                              highlightColor: theme.colorScheme.onSurface,
-                              onTap: () => controller.toggleLeftBar,
-                              child: Iconify(Tabler.menu_2, color: AppColors.light.withValues(alpha: 0.6)),
+                              onTap: () => controller.changePage(Routes.DASHBOARD),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: EdgeInsets.all(controller.isCondensed.value ? 16.0 : 8.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    ClipRRect(child: Image.asset(AssetConstants.nxpertEon, height: controller.isCondensed.value ? 19 : 24)),
+                                    const Row(
+                                      children: <Widget>[
+                                        SizedBox(width: 10),
+                                        EonText.titleLarge('NXPERT EON', fontWeight: FontWeight.w800, color: AppColors.onBackground, fontSize: 16, maxLines: 1, overflow: TextOverflow.clip),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                        ],
+                            if (!controller.isCondensed.value) const Spacer(),
+                            if (!controller.isCondensed.value)
+                              IconButton(
+                                icon: Iconify(Tabler.menu_2, color: AppColors.light.withValues(alpha: 0.6)),
+                                onPressed: () => controller.toggleLeftBar,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  if (!controller.isCondensed.value) const MenuLabel('MENU'),
-                  LeftBarItem(iconData: LucideIcons.house, title: 'Dashboard', isCondensed: controller.isCondensed.value, route: Routes.DASHBOARD, label: '9+', labelColor: AppColors.success),
-                  if (!controller.isCondensed.value) const MenuLabel('ENTRY'),
-                  LeftBarItem(iconData: LucideIcons.factory, title: 'Production Entry', isCondensed: controller.isCondensed.value, route: Routes.PRODUCTION_ENTRY),
-                  LeftBarItem(iconData: LucideIcons.tool_case, title: 'Material Entry', isCondensed: controller.isCondensed.value, route: Routes.MATERIAL_ENTRY),
-                  LeftBarItem(iconData: LucideIcons.toolbox, title: 'Machine Entry', isCondensed: controller.isCondensed.value, route: Routes.MACHINE_ENTRY),
-                  LeftBarItem(iconData: LucideIcons.person_standing, title: 'Manpower Entry', isCondensed: controller.isCondensed.value, route: Routes.MANPOWER_ENTRY),
-                  LeftBarDropdownItem(
-                    iconData: LucideIcons.milk_off,
-                    title: 'Defect',
-                    isCondensed: controller.isCondensed.value,
-                    children: const <LeftBarSubItem>[
-                      LeftBarSubItem(title: 'Material Defect Entry', route: Routes.MATERIAL_DEFECT_ENTRY),
-                      LeftBarSubItem(title: 'Product Defect Entry', route: Routes.PRODUCT_DEFECT_ENTRY),
-                    ],
-                  ),
-                  if (!controller.isCondensed.value) const MenuLabel('HANDY'),
-                  LeftBarItem(iconData: LucideIcons.locate_fixed, title: 'Locator Tagging', isCondensed: controller.isCondensed.value, route: Routes.LOCATOR_TAGGING),
-                  LeftBarItem(iconData: TablerIcons.home_move, title: 'Stock Movement', isCondensed: controller.isCondensed.value, route: Routes.STOCK_MOVEMENT),
-                  LeftBarItem(iconData: TablerIcons.brand_thingiverse, title: 'Material Issuance', isCondensed: controller.isCondensed.value, route: Routes.MATERIAL_ISSUANCE),
-                  LeftBarItem(iconData: Icons.cyclone, title: 'Inventory Generation', isCondensed: controller.isCondensed.value, route: Routes.INVENTORY_GENERATION),
-                  LeftBarItem(iconData: LucideIcons.zodiac_cancer, title: 'Inventory Processing', isCondensed: controller.isCondensed.value, route: Routes.INVENTORY_PROCESSING),
-                  LeftBarDropdownItem(
-                    iconData: LucideIcons.barcode,
-                    title: 'Barcode',
-                    isCondensed: controller.isCondensed.value,
-                    children: const <LeftBarSubItem>[
-                      LeftBarSubItem(title: 'Barcode Management', route: Routes.BARCODE_MANAGEMENT),
-                      LeftBarSubItem(title: 'Barcode Test', route: Routes.BARCODE_TEST),
-                    ],
-                  ),
-                  LeftBarItem(iconData: Icons.cleaning_services, title: 'Maintenance', isCondensed: controller.isCondensed.value, route: Routes.MAINTENANCE),
-                ],
+                    if (!controller.isCondensed.value) const MenuLabel('MENU'),
+                    LeftBarItem(iconData: LucideIcons.house, title: 'Dashboard', isCondensed: controller.isCondensed.value, route: Routes.DASHBOARD, label: '9+', labelColor: AppColors.success),
+                    if (!controller.isCondensed.value) const MenuLabel('ENTRY'),
+                    LeftBarItem(iconData: LucideIcons.factory, title: 'Production Entry', isCondensed: controller.isCondensed.value, route: Routes.PRODUCTION_ENTRY),
+                    LeftBarItem(iconData: LucideIcons.tool_case, title: 'Material Entry', isCondensed: controller.isCondensed.value, route: Routes.MATERIAL_ENTRY),
+                    LeftBarItem(iconData: LucideIcons.toolbox, title: 'Machine Entry', isCondensed: controller.isCondensed.value, route: Routes.MACHINE_ENTRY),
+                    LeftBarItem(iconData: LucideIcons.person_standing, title: 'Manpower Entry', isCondensed: controller.isCondensed.value, route: Routes.MANPOWER_ENTRY),
+                    LeftBarDropdownItem(
+                      iconData: LucideIcons.milk_off,
+                      title: 'Defect',
+                      isCondensed: controller.isCondensed.value,
+                      children: const <LeftBarSubItem>[
+                        LeftBarSubItem(title: 'Material Defect Entry', route: Routes.MATERIAL_DEFECT_ENTRY),
+                        LeftBarSubItem(title: 'Product Defect Entry', route: Routes.PRODUCT_DEFECT_ENTRY),
+                      ],
+                    ),
+                    if (!controller.isCondensed.value) const MenuLabel('HANDY'),
+                    LeftBarItem(iconData: LucideIcons.locate_fixed, title: 'Locator Tagging', isCondensed: controller.isCondensed.value, route: Routes.LOCATOR_TAGGING),
+                    LeftBarItem(iconData: TablerIcons.home_move, title: 'Stock Movement', isCondensed: controller.isCondensed.value, route: Routes.STOCK_MOVEMENT),
+                    LeftBarItem(iconData: TablerIcons.brand_thingiverse, title: 'Material Issuance', isCondensed: controller.isCondensed.value, route: Routes.MATERIAL_ISSUANCE),
+                    LeftBarItem(iconData: Icons.cyclone, title: 'Inventory Generation', isCondensed: controller.isCondensed.value, route: Routes.INVENTORY_GENERATION),
+                    LeftBarItem(iconData: LucideIcons.zodiac_cancer, title: 'Inventory Processing', isCondensed: controller.isCondensed.value, route: Routes.INVENTORY_PROCESSING),
+                    LeftBarDropdownItem(
+                      iconData: LucideIcons.barcode,
+                      title: 'Barcode',
+                      isCondensed: controller.isCondensed.value,
+                      children: const <LeftBarSubItem>[
+                        LeftBarSubItem(title: 'Barcode Management', route: Routes.BARCODE_MANAGEMENT),
+                        LeftBarSubItem(title: 'Barcode Test', route: Routes.BARCODE_TEST),
+                      ],
+                    ),
+                    LeftBarItem(iconData: Icons.cleaning_services, title: 'Maintenance', isCondensed: controller.isCondensed.value, route: Routes.MAINTENANCE),
+                  ],
+                ),
               ),
             ),
           ),
@@ -171,6 +174,20 @@ class LayoutView extends GetView<LayoutController> {
                             },
                           ),
                         ),
+                  // Bottom Bar
+                  Container(
+                    height: 30,
+                    color: context.isDarkMode ? const Color(0xFF282E36) : const Color(0xFFFEFEFE),
+                    child: Row(
+                      children: <Widget>[
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: EonText.labelMedium('V${Get.find<PackageInfo>().version}+${Get.find<PackageInfo>().buildNumber}', color: Get.isDarkMode ? const Color(0xffdcdcdc) : const Color(0xff747786)),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -207,42 +224,55 @@ class LeftBarItem extends StatelessWidget {
     final LayoutController controller = Get.find<LayoutController>();
     return Obx(() {
       final bool isSelected = controller.currentRoute.value == route;
-      return ListTile(
-        dense: true,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        hoverColor: Colors.white.withAlpha(25),
-        contentPadding: EdgeInsetsGeometry.symmetric(horizontal: isCondensed ? 25 : 16),
-        leading: Icon(
-          iconData,
-          color: isSelected
-              ? const Color(0xffffffff)
-              : context.isDarkMode
-              ? const Color(0xffdcdcdc)
-              : const Color(0xffa5b3c6),
-          size: 18,
+      final bool isHovered = controller.hoveredRoute.value == route;
+
+      return MouseRegion(
+        onEnter: (_) => controller.hoveredRoute.value = route,
+        onExit: (_) => controller.hoveredRoute.value = '',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+          child: ListTile(
+            dense: true,
+            tileColor: isSelected || isHovered
+                ? context.isDarkMode
+                      ? const Color(0xff363c44)
+                      : const Color(0xff283643)
+                : Colors.transparent,
+            contentPadding: EdgeInsetsGeometry.symmetric(horizontal: isCondensed ? 17 : 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            minTileHeight: 32,
+            leading: Icon(
+              iconData,
+              color: isSelected || isHovered
+                  ? const Color(0xffffffff)
+                  : context.isDarkMode
+                  ? const Color(0xffdcdcdc)
+                  : const Color(0xffa5b3c6),
+              size: 18,
+            ),
+            title: !isCondensed
+                ? EonText.labelLarge(
+                    title,
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                    color: isSelected || isHovered
+                        ? const Color(0xffffffff)
+                        : context.isDarkMode
+                        ? const Color(0xffdcdcdc)
+                        : const Color(0xffa5b3c6),
+                    fontWeight: isSelected || isHovered ? FontWeight.w500 : FontWeight.w400,
+                  )
+                : null,
+            trailing: !isCondensed && label != null
+                ? Container(
+                    padding: const EdgeInsetsGeometry.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(color: labelColor, borderRadius: const BorderRadius.all(Radius.circular(4))),
+                    child: EonText.labelSmall(label!, color: const Color(0xffeef2f7)),
+                  )
+                : null,
+            onTap: () => controller.changePage(route),
+          ),
         ),
-        title: !isCondensed
-            ? EonText.labelLarge(
-                title,
-                overflow: TextOverflow.clip,
-                maxLines: 1,
-                color: isSelected
-                    ? const Color(0xffffffff)
-                    : context.isDarkMode
-                    ? const Color(0xffdcdcdc)
-                    : const Color(0xffa5b3c6),
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-              )
-            : null,
-        trailing: !isCondensed && label != null
-            ? Container(
-                padding: const EdgeInsetsGeometry.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(color: labelColor, borderRadius: const BorderRadius.all(Radius.circular(4))),
-                child: EonText.labelSmall(label!, color: const Color(0xffeef2f7)),
-              )
-            : null,
-        selected: isSelected,
-        onTap: () => controller.changePage(route),
       );
     });
   }
@@ -263,38 +293,89 @@ class LeftBarDropdownItem extends StatelessWidget {
       final LayoutController controller = Get.find<LayoutController>();
       final bool containsActiveChild = children.any((LeftBarSubItem child) => controller.currentRoute.value == child.route);
       if (isCondensed) {
-        return PopupMenuButton<String>(
-          offset: const Offset(70, 0),
-          color: context.isDarkMode ? const Color(0xFF282F37) : const Color(0xFF2D3D4D),
-          tooltip: title,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(color: containsActiveChild ? Colors.white.withAlpha(40) : Colors.transparent, borderRadius: BorderRadius.circular(8)),
-            child: Center(
-              child: Icon(
-                iconData,
-                color: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY
-                    ? const Color(0xffffffff)
-                    : context.isDarkMode
-                    ? const Color(0xffdcdcdc)
-                    : const Color(0xffa5b3c6),
-                size: 18,
-              ),
-            ),
-          ),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            PopupMenuItem<String>(enabled: false, child: EonText.labelSmall(title, color: const Color(0xff879baf))),
-            const PopupMenuDivider(),
-            ...children.map(
-              (LeftBarSubItem child) => PopupMenuItem<String>(
-                value: child.route,
-                child: Text(
-                  child.title,
-                  style: TextStyle(color: controller.currentRoute.value == child.route ? Colors.cyan : Colors.white70, fontWeight: controller.currentRoute.value == child.route ? FontWeight.bold : FontWeight.normal),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Theme(
+            data: Theme.of(context).copyWith(hoverColor: Colors.transparent, highlightColor: Colors.transparent, splashColor: Colors.transparent),
+            child: PopupMenuButton<String>(
+              offset: const Offset(64, 0),
+              tooltip: containsActiveChild ? children.firstWhere((LeftBarSubItem child) => controller.currentRoute.value == child.route).title : title,
+              color: context.isDarkMode ? const Color(0xFF282F37) : const Color(0xFF2D3D4D),
+              borderRadius: BorderRadius.circular(4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: containsActiveChild
+                      ? context.isDarkMode
+                            ? const Color(0xff363c44)
+                            : const Color(0xff283643)
+                      : Colors.transparent,
+                ),
+                alignment: AlignmentGeometry.center,
+                child: Icon(
+                  iconData,
+                  color: containsActiveChild
+                      ? const Color(0xffffffff)
+                      : context.isDarkMode
+                      ? const Color(0xffdcdcdc)
+                      : const Color(0xffa5b3c6),
+                  size: 18,
                 ),
               ),
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  enabled: false,
+                  height: 24,
+                  child: EonText.labelLarge(
+                    title,
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                    color: containsActiveChild
+                        ? const Color(0xffffffff)
+                        : context.isDarkMode
+                        ? const Color(0xffdcdcdc)
+                        : const Color(0xffa5b3c6),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                ...children.map(
+                  (LeftBarSubItem child) => PopupMenuItem<String>(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    height: 32,
+                    value: child.route,
+                    onTap: () => controller.changePage(child.route),
+                    child: MouseRegion(
+                      onEnter: (_) => controller.hoveredRoute.value = child.route,
+                      onExit: (_) => controller.hoveredRoute.value = '',
+                      child: Obx(() {
+                        final bool isHovered = controller.hoveredRoute.value == child.route;
+                        final bool isSelected = controller.currentRoute.value == child.route;
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          height: 32,
+                          alignment: Alignment.centerLeft,
+                          decoration: BoxDecoration(color: isSelected || isHovered ? (context.isDarkMode ? const Color(0xff363c44) : const Color(0xff283643)) : Colors.transparent, borderRadius: BorderRadius.circular(4)),
+                          child: EonText.bodySmall(
+                            child.title,
+                            color: isSelected || isHovered
+                                ? const Color(0xffffffff)
+                                : context.isDarkMode
+                                ? const Color(0xffdcdcdc)
+                                : const Color(0xffa5b3c6),
+                            fontWeight: isSelected || isHovered ? FontWeight.w500 : FontWeight.w400,
+                            fontSize: 12.5,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       }
 
@@ -303,42 +384,53 @@ class LeftBarDropdownItem extends StatelessWidget {
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
           expansionTileTheme: ExpansionTileThemeData(
-            iconColor: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY
+            iconColor: containsActiveChild
                 ? const Color(0xffffffff)
                 : context.isDarkMode
                 ? const Color(0xffdcdcdc)
                 : const Color(0xffa5b3c6),
-            collapsedIconColor: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY
+            collapsedIconColor: containsActiveChild
                 ? const Color(0xffffffff)
                 : context.isDarkMode
                 ? const Color(0xffdcdcdc)
                 : const Color(0xffa5b3c6),
           ),
         ),
-        child: ExpansionTile(
-          initiallyExpanded: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY ? true : false,
-          dense: true,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-          leading: Icon(
-            iconData,
-            color: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY
-                ? const Color(0xffffffff)
-                : context.isDarkMode
-                ? const Color(0xffdcdcdc)
-                : const Color(0xffa5b3c6),
-            size: 18,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: ExpansionTile(
+            collapsedBackgroundColor: containsActiveChild
+                ? context.isDarkMode
+                      ? const Color(0xff363c44)
+                      : const Color(0xff283643)
+                : Colors.transparent,
+            collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            initiallyExpanded: containsActiveChild ? true : false,
+            dense: true,
+            tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            minTileHeight: 32,
+            leading: Icon(
+              iconData,
+              color: containsActiveChild
+                  ? const Color(0xffffffff)
+                  : context.isDarkMode
+                  ? const Color(0xffdcdcdc)
+                  : const Color(0xffa5b3c6),
+              size: 18,
+            ),
+            title: EonText.labelLarge(
+              title,
+              overflow: TextOverflow.clip,
+              maxLines: 1,
+              color: containsActiveChild
+                  ? const Color(0xffffffff)
+                  : context.isDarkMode
+                  ? const Color(0xffdcdcdc)
+                  : const Color(0xffa5b3c6),
+            ),
+            children: children,
           ),
-          title: EonText.labelLarge(
-            title,
-            overflow: TextOverflow.clip,
-            maxLines: 1,
-            color: Get.currentRoute == Routes.MATERIAL_DEFECT_ENTRY || Get.currentRoute == Routes.PRODUCT_DEFECT_ENTRY
-                ? const Color(0xffffffff)
-                : context.isDarkMode
-                ? const Color(0xffdcdcdc)
-                : const Color(0xffa5b3c6),
-          ),
-          children: children,
         ),
       );
     });
@@ -356,24 +448,36 @@ class LeftBarSubItem extends StatelessWidget {
     final LayoutController controller = Get.find<LayoutController>();
     return Obx(() {
       final bool isSelected = controller.currentRoute.value == route;
+      final bool isHovered = controller.hoveredRoute.value == route;
 
-      return ListTile(
-        dense: true,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        hoverColor: Colors.white.withAlpha(20),
-        tileColor: isSelected ? Colors.white.withAlpha(25) : Colors.transparent,
-        contentPadding: const EdgeInsets.only(left: 50),
-        title: EonText.bodySmall(
-          '- $title',
-          color: isSelected
-              ? const Color(0xffffffff)
-              : context.isDarkMode
-              ? const Color(0xffdcdcdc)
-              : const Color(0xffa5b3c6),
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          fontSize: 12.5,
+      return MouseRegion(
+        onEnter: (_) => controller.hoveredRoute.value = route,
+        onExit: (_) => controller.hoveredRoute.value = '',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2),
+          child: ListTile(
+            dense: true,
+            tileColor: isSelected || isHovered
+                ? context.isDarkMode
+                      ? const Color(0xff363c44)
+                      : const Color(0xff283643)
+                : Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            contentPadding: const EdgeInsets.only(left: 24),
+            minTileHeight: 32,
+            title: EonText.bodySmall(
+              '- $title',
+              color: isSelected || isHovered
+                  ? const Color(0xffffffff)
+                  : context.isDarkMode
+                  ? const Color(0xffdcdcdc)
+                  : const Color(0xffa5b3c6),
+              fontWeight: isSelected || isHovered ? FontWeight.w500 : FontWeight.w400,
+              fontSize: 12.5,
+            ),
+            onTap: () => controller.changePage(route),
+          ),
         ),
-        onTap: () => controller.changePage(route),
       );
     });
   }

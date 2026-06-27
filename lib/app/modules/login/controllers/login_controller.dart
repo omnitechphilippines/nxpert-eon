@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../data/models/user_model.dart';
 import '../../../data/providers/auth_provider.dart';
@@ -11,19 +12,33 @@ class LoginController extends GetxController {
 
   final RxBool rememberMe = false.obs;
 
+  final GlobalKey<FormState> formKeyLogin = GlobalKey<FormState>();
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FocusNode userNameFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
 
   RxBool isLoading = false.obs;
+  final Rx<PackageInfo?> packageInfo = Rx<PackageInfo?>(null);
 
   void get rememberToggle => rememberMe.toggle();
 
-  Future<void> login() async {
-    final String userName = userNameController.text.trim();
-    final String password = passwordController.text.trim();
+  Future<void> get _fetchPackageInfo async => packageInfo.value = await PackageInfo.fromPlatform();
 
-    if (userName.isEmpty || password.isEmpty) {
-      Get.snackbar('Error', 'Please fill in all fields', snackPosition: SnackPosition.BOTTOM);
+  @override
+  void onInit() {
+    super.onInit();
+    _fetchPackageInfo;
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    userNameFocus.requestFocus();
+  }
+
+  Future<void> login() async {
+    if (!(formKeyLogin.currentState?.validate() ?? false)) {
       return;
     }
 
@@ -31,7 +46,7 @@ class LoginController extends GetxController {
       isLoading.value = true;
 
       // 1. Verify DB data + Client BCrypt validation
-      final UserModel user = await _authProvider.verifyAndLogin(userName, password);
+      final UserModel user = await _authProvider.verifyAndLogin(userNameController.text.trim(), passwordController.text.trim());
 
       // 2. Commit authenticated session to State & SharedPreferences
       await _authService.loginUser(user);
@@ -46,6 +61,8 @@ class LoginController extends GetxController {
   void onClose() {
     userNameController.dispose();
     passwordController.dispose();
+    userNameFocus.dispose();
+    passwordFocus.dispose();
     super.onClose();
   }
 }

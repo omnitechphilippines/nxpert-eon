@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/data/services/auth_service.dart';
@@ -21,6 +22,7 @@ void main() async {
   );
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   Get.put<SharedPreferences>(prefs, permanent: true);
+  Get.put<PackageInfo>(await PackageInfo.fromPlatform(), permanent: true);
   Get.put(AuthService());
   runApp(
     GetMaterialApp(

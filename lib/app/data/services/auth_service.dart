@@ -27,7 +27,6 @@ class AuthService extends GetxService {
     }
   }
 
-  // Explicitly called by LoginController upon successful validation
   Future<void> loginUser(UserModel user) async {
     currentUser.value = user;
     isLoggedIn.value = true;
@@ -40,12 +39,11 @@ class AuthService extends GetxService {
     }
   }
 
-  // Clear session properties and redirect to login
   Future<void> logout() async {
     currentUser.value = null;
     isLoggedIn.value = false;
     await _prefs.remove('cached_user');
 
-    Get.offAllNamed('/login');
+    Get.offAllNamed(Routes.LOGIN);
   }
 }
